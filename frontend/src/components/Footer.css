@@ -64,6 +64,10 @@
   animation: pulse-green 2s infinite;
 }
 
+.status-indicator.offline {
+  background-color: #ef4444; /* Red */
+}
+
 @keyframes pulse-green {
   0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
   70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }

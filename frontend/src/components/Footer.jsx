@@ -1,6 +1,22 @@
+import { useEffect, useState } from 'react';
+import { checkHealth } from '../services/api';
 import './Footer.css';
 
 export default function Footer() {
+  const [isHealthy, setIsHealthy] = useState(false);
+
+  useEffect(() => {
+    // Check health initially and every 30 seconds
+    const performHealthCheck = async () => {
+      const healthy = await checkHealth();
+      setIsHealthy(healthy);
+    };
+
+    performHealthCheck();
+    const intervalId = setInterval(performHealthCheck, 30000);
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -18,9 +34,9 @@ export default function Footer() {
           </p>
         </div>
         <div className="footer-status-wrapper">
-          <div className="footer-status">
-            <span className="status-indicator pulse"></span>
-            Project Status: Active
+          <div className="footer-status" title={isHealthy ? "Backend is online" : "Backend is offline or unreachable"}>
+            <span className={`status-indicator ${isHealthy ? 'pulse' : 'offline'}`}></span>
+            API Status: {isHealthy ? 'Online' : 'Offline'}
           </div>
         </div>
       </div>

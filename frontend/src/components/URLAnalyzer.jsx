@@ -1,26 +1,45 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { analyzeURL } from '../services/api';
+import Spinner from './Spinner';
 import './URLAnalyzer.css';
 
-export default function URLAnalyzer({ onAnalyze }) {
+export default function URLAnalyzer() {
   const [url, setUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setUrl(e.target.value);
+    if (error) setError(null);
   };
 
   const handleClear = () => {
     setUrl('');
+    setError(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedUrl = url.trim();
-    if (trimmedUrl) {
-      onAnalyze(trimmedUrl);
+    if (!trimmedUrl || isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await analyzeURL(trimmedUrl);
+      navigate('/results', { state: { result } });
+    } catch (err) {
+      console.error(err);
+      setError("Failed to analyze URL. Ensure the backend is running at http://localhost:8000.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const isSubmitDisabled = url.trim().length === 0;
+  const isSubmitDisabled = url.trim().length === 0 || isLoading;
 
   return (
     <div className="url-analyzer-container">
@@ -37,12 +56,14 @@ export default function URLAnalyzer({ onAnalyze }) {
               </svg>
             </div>
             <input
-              type="text"
+              type="url"
               id="suspicious-url"
               className="url-input"
-              placeholder="Paste a suspicious URL (e.g., https://example.com)..."
+              placeholder="Paste a suspicious URL (e.g., https://example.com/login)..."
               value={url}
               onChange={handleChange}
+              disabled={isLoading}
+              aria-describedby="url-error"
             />
           </div>
           <div className="url-footer">
@@ -51,7 +72,7 @@ export default function URLAnalyzer({ onAnalyze }) {
                 type="button" 
                 className="btn btn-secondary btn-sm" 
                 onClick={handleClear}
-                disabled={url.length === 0}
+                disabled={url.length === 0 || isLoading}
               >
                 Clear
               </button>
@@ -60,12 +81,18 @@ export default function URLAnalyzer({ onAnalyze }) {
                 className="btn btn-primary btn-sm"
                 disabled={isSubmitDisabled}
               >
-                Analyze URL
+                {isLoading ? (
+                  <>
+                    <Spinner size="16px" />
+                    <span style={{ marginLeft: '8px' }}>Analyzing...</span>
+                  </>
+                ) : 'Analyze URL'}
               </button>
             </div>
           </div>
         </div>
       </form>
+      {error && <div id="url-error" className="error-message" role="alert" style={{ marginTop: '1rem' }}>{error}</div>}
     </div>
   );
 }

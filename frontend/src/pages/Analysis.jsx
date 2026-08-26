@@ -4,18 +4,6 @@ import ScreenshotAnalyzer from '../components/ScreenshotAnalyzer';
 import './Analysis.css';
 
 export default function Analysis() {
-  const handleAnalyzeMessage = (message) => {
-    console.log("Analyzing message:", message);
-  };
-
-  const handleAnalyzeUrl = (url) => {
-    console.log("Analyzing URL:", url);
-  };
-
-  const handleAnalyzeScreenshot = (text) => {
-    console.log("Analyzing Extracted Text:", text);
-  };
-
   return (
     <div className="analysis-page-container">
       <div className="analysis-header">
@@ -29,15 +17,15 @@ export default function Analysis() {
         <div className="analyzers-grid">
           <div className="analyzer-section">
             <h2 className="analyzer-title">Message Analysis</h2>
-            <MessageAnalyzer onAnalyze={handleAnalyzeMessage} />
+            <MessageAnalyzer />
           </div>
           <div className="analyzer-section">
             <h2 className="analyzer-title">URL Analysis</h2>
-            <URLAnalyzer onAnalyze={handleAnalyzeUrl} />
+            <URLAnalyzer />
           </div>
           <div className="analyzer-section">
             <h2 className="analyzer-title">Screenshot Analysis</h2>
-            <ScreenshotAnalyzer onAnalyze={handleAnalyzeScreenshot} />
+            <ScreenshotAnalyzer />
           </div>
         </div>
       </div>

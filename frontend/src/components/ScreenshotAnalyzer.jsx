@@ -1,16 +1,19 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { extractTextFromImage } from '../services/ocr';
-import OCRResult from './OCRResult';
+import { analyzeMessage } from '../services/api';
+import Spinner from './Spinner';
 import './ScreenshotAnalyzer.css';
 
-export default function ScreenshotAnalyzer({ onAnalyze }) {
+export default function ScreenshotAnalyzer() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [extractedText, setExtractedText] = useState('');
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -21,32 +24,43 @@ export default function ScreenshotAnalyzer({ onAnalyze }) {
       }
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
-      setExtractedText('');
       setError(null);
       setProgress(0);
     }
   };
 
-  const handleExtractText = async () => {
-    if (!imageFile) return;
+  const handleExtractAndAnalyze = async () => {
+    if (!imageFile || isExtracting || isAnalyzing) return;
+    
     setIsExtracting(true);
     setError(null);
     setProgress(0);
-    setExtractedText('');
 
     try {
-      const text = await extractTextFromImage(imageFile, setProgress);
-      if (!text) {
+      const extractedText = await extractTextFromImage(imageFile, setProgress);
+      
+      if (!extractedText) {
         setError('No text could be extracted from this image.');
-      } else {
-        setExtractedText(text);
-        if (onAnalyze) {
-          onAnalyze(text);
-        }
+        setIsExtracting(false);
+        return;
       }
+      
+      // Move to analyzing phase
+      setIsExtracting(false);
+      setIsAnalyzing(true);
+      
+      try {
+        const result = await analyzeMessage(extractedText);
+        navigate('/results', { state: { result } });
+      } catch (apiErr) {
+        console.error(apiErr);
+        setError('Backend analysis failed. Please ensure the backend is running at http://localhost:8000.');
+        setIsAnalyzing(false);
+      }
+      
     } catch (err) {
-      setError('Failed to extract text. Please try again.');
-    } finally {
+      console.error(err);
+      setError('Failed to extract text using OCR. Please try again with a clearer image.');
       setIsExtracting(false);
     }
   };
@@ -54,13 +68,14 @@ export default function ScreenshotAnalyzer({ onAnalyze }) {
   const handleClear = () => {
     setImageFile(null);
     setImagePreview(null);
-    setExtractedText('');
     setError(null);
     setProgress(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
+
+  const isLoading = isExtracting || isAnalyzing;
 
   return (
     <div className="analyzer-container screenshot-analyzer-container">
@@ -70,10 +85,10 @@ export default function ScreenshotAnalyzer({ onAnalyze }) {
         {!imagePreview ? (
           <div 
             className="upload-zone"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => !isLoading && fileInputRef.current?.click()}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => { if(e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+            onKeyDown={(e) => { if((e.key === 'Enter' || e.key === ' ') && !isLoading) fileInputRef.current?.click(); }}
           >
             <input
               type="file"
@@ -82,6 +97,7 @@ export default function ScreenshotAnalyzer({ onAnalyze }) {
               accept="image/png, image/jpeg, image/jpg"
               className="file-input-hidden"
               aria-label="Upload a suspicious screenshot"
+              disabled={isLoading}
             />
             <div className="upload-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -97,14 +113,19 @@ export default function ScreenshotAnalyzer({ onAnalyze }) {
           <div className="preview-container">
             <img src={imagePreview} alt="Screenshot preview" className="image-preview" />
             <div className="preview-actions">
-              <button className="btn btn-secondary btn-sm" onClick={handleClear}>
+              <button className="btn btn-secondary btn-sm" onClick={handleClear} disabled={isLoading}>
                 Remove Image
               </button>
-              {!extractedText && !isExtracting && (
-                <button className="btn btn-primary btn-sm" onClick={handleExtractText}>
-                  Extract Text
-                </button>
-              )}
+              <button className="btn btn-primary btn-sm" onClick={handleExtractAndAnalyze} disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Spinner size="16px" />
+                    <span style={{ marginLeft: '8px' }}>
+                      {isExtracting ? 'Extracting Text...' : 'Analyzing...'}
+                    </span>
+                  </>
+                ) : 'Extract & Analyze'}
+              </button>
             </div>
           </div>
         )}
@@ -116,12 +137,14 @@ export default function ScreenshotAnalyzer({ onAnalyze }) {
             <div className="progress-bar-bg">
               <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
             </div>
-            <p className="progress-text">Extracting text... {progress}%</p>
+            <p className="progress-text">Extracting text using OCR... {progress}%</p>
           </div>
         )}
-
-        {extractedText && (
-          <OCRResult text={extractedText} onClear={() => setExtractedText('')} />
+        
+        {isAnalyzing && (
+          <div className="progress-container" style={{ textAlign: 'center', marginTop: '2rem' }}>
+             <p className="progress-text" style={{ textAlign: 'center' }}>Sending extracted text to intelligence engine...</p>
+          </div>
         )}
       </div>
     </div>
