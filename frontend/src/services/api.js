@@ -18,8 +18,8 @@ export const checkHealth = async () => {
   }
 };
 
-export const analyzeMessage = async (message) => {
-  const response = await api.post('/api/analyze/message', { message });
+export const analyzeMessage = async (text) => {
+  const response = await api.post('/api/analyze/message', { text });
   return response.data;
 };
 

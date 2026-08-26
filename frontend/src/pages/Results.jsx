@@ -20,13 +20,15 @@ export default function Results() {
     );
   }
 
-  const { risk_score, risk_level, indicators, explanation, safe_action } = result;
+  const { risk_score, risk_level, findings, explanation, safe_action } = result;
 
   let riskColorClass = 'risk-low';
-  if (risk_score >= 70 || (risk_level && risk_level.toLowerCase().includes('high'))) {
+  if (risk_score >= 70 || (risk_level && risk_level.toUpperCase() === 'HIGH')) {
     riskColorClass = 'risk-high';
-  } else if (risk_score >= 40 || (risk_level && risk_level.toLowerCase().includes('medium'))) {
+  } else if (risk_score >= 40 || (risk_level && risk_level.toUpperCase() === 'SUSPICIOUS')) {
     riskColorClass = 'risk-medium';
+  } else if (risk_level && risk_level.toUpperCase() === 'SAFE') {
+    riskColorClass = 'risk-low';
   }
 
   return (
@@ -56,18 +58,18 @@ export default function Results() {
             </div>
 
             <div className="detail-group">
-              <h3>Key Indicators</h3>
-              {indicators && indicators.length > 0 ? (
+              <h3>Key Findings</h3>
+              {findings && findings.length > 0 ? (
                 <ul className="indicators-list">
-                  {indicators.map((indicator, index) => (
+                  {findings.map((finding, index) => (
                     <li key={index}>
                       <span className="indicator-icon">⚠️</span>
-                      {indicator}
+                      {finding}
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>No specific indicators detected.</p>
+                <p>No specific findings detected.</p>
               )}
             </div>
 
