@@ -1,7 +1,5 @@
 # 🛡️ PhishLens Frontend
 
-### *AI-Powered Regional Language Phishing Detection Interface*
-
 The **PhishLens Frontend** is the user-facing web application of the PhishLens cybersecurity project. Built using **React** and **Vite**, it provides a simple, responsive, and accessible interface that helps users detect phishing attempts through message analysis, URL analysis, and screenshot-based text analysis.
 
 The frontend focuses on delivering a smooth user experience while handling user input, OCR-based text extraction, and presentation of phishing analysis results.
