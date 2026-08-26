@@ -1,0 +1,38 @@
+.ocr-result-container {
+  margin-top: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+}
+
+.ocr-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.ocr-result-header h4 {
+  font-size: 0.95rem;
+  color: var(--highlight-cyan);
+  margin: 0;
+}
+
+.ocr-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ocr-textarea {
+  width: 100%;
+  background: var(--code-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  color: var(--text-main);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  resize: vertical;
+  outline: none;
+}

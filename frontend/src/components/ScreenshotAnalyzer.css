@@ -1,0 +1,116 @@
+.analyzer-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.screenshot-analyzer-container .upload-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 3rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+  background: rgba(255, 255, 255, 0.02);
+  margin-top: 0.75rem;
+}
+
+.screenshot-analyzer-container .upload-zone:hover,
+.screenshot-analyzer-container .upload-zone:focus-visible {
+  border-color: var(--primary-blue);
+  background: rgba(37, 99, 235, 0.05);
+  outline: none;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+  color: var(--text-muted);
+}
+
+.upload-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.preview-container {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #000;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.progress-container {
+  margin-top: 1.5rem;
+}
+
+.progress-bar-bg {
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary-blue);
+  transition: width 0.2s ease;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.input-label {
+  font-weight: 500;
+  color: var(--text-main);
+  font-size: 1.05rem;
+}
+
+.analyzer-form {
+  display: flex;
+  flex-direction: column;
+}
