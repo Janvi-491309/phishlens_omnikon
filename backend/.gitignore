@@ -1,0 +1,21 @@
+# Python gitignore
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+
+# Testing/Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
