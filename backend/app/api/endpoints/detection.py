@@ -27,7 +27,8 @@ def analyze_message(request: MessageAnalysisRequest) -> MessageAnalysisResponse:
         risk_score=result["risk_score"],
         risk_level=result["risk_level"],
         findings=result["findings"],
-        explanation=result["explanation"]
+        explanation=result["explanation"],
+        safe_action=result["safe_action"]
     )
 
 @router.post("/analyze/url", response_model=URLAnalysisResponse, tags=["Detection"])
@@ -46,5 +47,6 @@ def analyze_url(request: URLAnalysisRequest) -> URLAnalysisResponse:
         risk_score=result["risk_score"],
         risk_level=result["risk_level"],
         findings=result["findings"],
-        explanation=result["explanation"]
+        explanation=result["explanation"],
+        safe_action=result["safe_action"]
     )

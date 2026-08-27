@@ -119,12 +119,21 @@ class MessageAnalyzer:
                 f"This message was classified as {risk_level} with a risk score of {score}/100. "
                 f"It triggered the following indicators: {', '.join(findings)}."
             )
-            
+
+        # Generate safe_action based on risk_level
+        if risk_level == "SAFE":
+            safe_action = "No immediate action is required. Continue to use normal security precautions."
+        elif risk_level == "SUSPICIOUS":
+            safe_action = "Do not share passwords, OTPs, or credentials. Verify the message through the organization's official website."
+        else:  # HIGH
+            safe_action = "Do not click links or share passwords, OTPs, or other credentials. Verify the request through the official website."
+
         return {
             "risk_score": float(score),
             "risk_level": risk_level,
             "findings": findings,
-            "explanation": explanation
+            "explanation": explanation,
+            "safe_action": safe_action,
         }
 
 message_analyzer = MessageAnalyzer()

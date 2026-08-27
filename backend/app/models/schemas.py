@@ -62,6 +62,7 @@ class MessageAnalysisResponse(BaseModel):
         ...,
         description="A natural language explanation of the decision, designed to be user-friendly."
     )
+    safe_action: str = Field(..., description="Recommended action for the user based on the risk level.")
 
 class URLAnalysisResponse(BaseModel):
     url: str = Field(..., description="The URL that was analyzed.")
@@ -73,3 +74,4 @@ class URLAnalysisResponse(BaseModel):
         ...,
         description="A natural language explanation of the decision, designed to be user-friendly."
     )
+    safe_action: str = Field(..., description="Recommended action for the user based on the risk level.")

@@ -18,6 +18,7 @@ def test_analyze_message_safe():
     assert data["risk_level"] == "SAFE"
     assert len(data["findings"]) == 0
     assert "safe" in data["explanation"].lower()
+    assert data["safe_action"] == "No immediate action is required. Continue to use normal security precautions."
 
 def test_analyze_message_safe_brand_only():
     # Brand impersonation weak signal: normal message mentioning Amazon should remain SAFE (0 points)
@@ -38,6 +39,7 @@ def test_analyze_message_suspicious():
     assert data["risk_score"] == 45.0
     assert data["risk_level"] == "SUSPICIOUS"
     assert len(data["findings"]) == 2
+    assert data["safe_action"] == "Do not share passwords, OTPs, or credentials. Verify the message through the organization's official website."
 
 def test_analyze_message_high_risk():
     # Urgency (20) + Threat (20) + Credential request (25) + URL (20) + Impersonation (10) = 95 (HIGH)
@@ -51,6 +53,7 @@ def test_analyze_message_high_risk():
     assert data["risk_level"] == "HIGH"
     assert len(data["findings"]) == 5
     assert "high" in data["explanation"].lower()
+    assert data["safe_action"] == "Do not click links or share passwords, OTPs, or other credentials. Verify the request through the official website."
 
 def test_analyze_url_safe():
     # https://www.google.com should be SAFE (0 score)
@@ -64,6 +67,7 @@ def test_analyze_url_safe():
     assert data["is_suspicious"] is False
     assert len(data["findings"]) == 0
     assert "safe" in data["explanation"].lower()
+    assert data["safe_action"] == "No immediate action is required. Continue to use normal security precautions."
 
 def test_analyze_url_suspicious():
     # http://example.com/login/verify should be SUSPICIOUS
@@ -78,6 +82,7 @@ def test_analyze_url_suspicious():
     assert data["is_suspicious"] is True
     assert len(data["findings"]) == 3
     assert "suspicious" in data["explanation"].lower()
+    assert data["safe_action"] == "Avoid opening this URL or entering personal information until the website is verified."
 
 def test_analyze_url_high():
     # http://192.168.1.100/login/verify?password=update should be HIGH
@@ -92,6 +97,7 @@ def test_analyze_url_high():
     assert data["is_suspicious"] is True
     assert len(data["findings"]) == 6
     assert "high" in data["explanation"].lower()
+    assert data["safe_action"] == "Do not open this URL or enter personal information. Verify the website through its official domain."
 
 def test_analyze_url_invalid():
     # Test missing protocol

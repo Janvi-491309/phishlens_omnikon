@@ -142,11 +142,20 @@ class URLAnalyzer:
             indicator_text = "multiple suspicious URL indicators were detected" if len(findings) > 1 else "a suspicious URL indicator was detected"
             explanation = f"This URL was classified as {risk_level} with a risk score of {score}/100 because {indicator_text}."
 
+        # Generate safe_action based on risk_level
+        if risk_level == "SAFE":
+            safe_action = "No immediate action is required. Continue to use normal security precautions."
+        elif risk_level == "SUSPICIOUS":
+            safe_action = "Avoid opening this URL or entering personal information until the website is verified."
+        else:  # HIGH
+            safe_action = "Do not open this URL or enter personal information. Verify the website through its official domain."
+
         return {
             "risk_score": float(score),
             "risk_level": risk_level,
             "findings": findings,
-            "explanation": explanation
+            "explanation": explanation,
+            "safe_action": safe_action,
         }
 
 url_analyzer = URLAnalyzer()
