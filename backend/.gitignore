@@ -19,3 +19,6 @@ htmlcov/
 # IDEs
 .vscode/
 .idea/
+
+# ML model binaries (Round 3) - regenerate with: python models/train_classifier.py
+models/*.pkl
