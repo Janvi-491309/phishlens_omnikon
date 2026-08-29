@@ -1,10 +1,18 @@
 .url-analyzer-container {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
   width: 100%;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.url-analyzer-container:hover {
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-lg);
 }
 
 .url-analyzer-form {
@@ -20,13 +28,14 @@
 
 .url-icon {
   position: absolute;
-  left: 1rem;
-  color: var(--text-muted);
+  left: 1.1rem;
+  color: var(--highlight-cyan);
   width: 20px;
   height: 20px;
   display: flex;
   align-items: center;
   pointer-events: none;
+  opacity: 0.85;
 }
 
 .url-icon svg {
@@ -36,33 +45,49 @@
 
 .url-input {
   width: 100%;
-  background: var(--bg-main);
+  background: var(--code-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 1rem 1rem 1rem 3.1rem;
   color: var(--text-main);
-  font-family: var(--font-family);
-  font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+
+.url-input:hover {
+  border-color: var(--border-color-light);
 }
 
 .url-input:focus {
   outline: none;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  border-color: var(--highlight-cyan);
+  box-shadow: 0 0 0 3px var(--highlight-cyan-glow);
+  background: rgba(8, 14, 28, 0.95);
 }
 
 .url-input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-dim);
+  font-family: var(--font-family);
+  font-size: 0.925rem;
+}
+
+.url-input.input-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
 .url-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 @media (max-width: 640px) {
+  .url-analyzer-container {
+    padding: 1.25rem;
+  }
+
   .url-footer .action-buttons {
     width: 100%;
     justify-content: flex-end;

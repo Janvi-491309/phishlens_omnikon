@@ -2,15 +2,17 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(6, 11, 25, 0.8);
-  backdrop-filter: blur(12px);
+  background: rgba(6, 11, 25, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
 }
 
 .navbar {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 1.1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -23,39 +25,54 @@
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--highlight-cyan);
-  background: rgba(6, 182, 212, 0.1);
-  border-radius: 8px;
-  padding: 6px;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 7px;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar-brand:hover .brand-logo {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
 }
 
 .brand-name {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: var(--text-main);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.03em;
 }
 
+/* ─── Desktop Links ──────────────────────────────── */
 .navbar-links {
   display: flex;
-  gap: 2rem;
+  gap: 2.25rem;
 }
 
 .nav-link {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.95rem;
   transition: color 0.2s ease;
   position: relative;
+  padding: 0.25rem 0;
 }
 
-.nav-link:hover, .nav-link.active {
-  color: var(--text-main);
+.nav-link:hover {
+  color: #ffffff;
+}
+
+.nav-link.active {
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .nav-link.active::after {
@@ -65,17 +82,107 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--primary-blue);
+  background: var(--gradient-primary);
   border-radius: 2px;
+  box-shadow: 0 0 8px var(--primary-blue);
 }
 
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+/* ─── Hamburger Button ───────────────────────────── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
 }
 
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-color-light);
+}
+
+.hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-main);
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transform-origin: center;
+}
+
+/* Animate to × when open */
+.hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ─── Mobile Menu Dropdown ───────────────────────── */
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.75rem 1.5rem 1.75rem;
+  border-top: 1px solid var(--border-color);
+  background: rgba(6, 11, 25, 0.98);
+  animation: slideDown 0.22s ease forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-nav-link {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: color 0.2s ease;
+  display: block;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+  color: #ffffff;
+}
+
+.mobile-cta {
+  margin-top: 1.25rem;
+  text-align: center;
+  width: 100%;
+}
+
+/* ─── Responsive Breakpoints ─────────────────────── */
 @media (max-width: 768px) {
-  .navbar-links {
+  .navbar-links,
+  .navbar-actions {
     display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .navbar {
+    padding: 0.95rem 1.25rem;
   }
 }

@@ -1,8 +1,19 @@
 .footer {
-  background: var(--bg-secondary);
+  background: linear-gradient(180deg, var(--bg-main) 0%, #040711 100%);
   border-top: 1px solid var(--border-color);
-  padding: 4rem 2rem 2rem;
+  padding: 4.5rem 2rem 2.5rem;
   margin-top: auto;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent);
 }
 
 .footer-container {
@@ -20,41 +31,59 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .brand-logo-small {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   color: var(--highlight-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo-small svg {
+  width: 100%;
+  height: 100%;
 }
 
 .footer-brand h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
 }
 
 .footer-description {
   color: var(--text-muted);
-  max-width: 400px;
+  max-width: 440px;
   font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer-status-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 .footer-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
+  gap: 0.625rem;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-full);
   font-size: 0.85rem;
-  color: var(--text-muted);
+  font-weight: 500;
+  color: var(--text-secondary);
   border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
 }
 
 .status-indicator {
   width: 8px;
   height: 8px;
-  background-color: #10b981; /* Green */
+  background-color: #10b981;
   border-radius: 50%;
   display: inline-block;
 }
@@ -65,7 +94,8 @@
 }
 
 .status-indicator.offline {
-  background-color: #ef4444; /* Red */
+  background-color: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
 }
 
 @keyframes pulse-green {
@@ -78,10 +108,10 @@
   max-width: 1200px;
   margin: 0 auto;
   padding-top: 2rem;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   text-align: center;
-  color: var(--text-muted);
-  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {

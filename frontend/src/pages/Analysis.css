@@ -1,29 +1,32 @@
 .analysis-page-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 6rem;
   width: 100%;
 }
 
 .analysis-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
+  position: relative;
 }
 
 .analysis-header h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 3.25rem;
+  margin-bottom: 0.85rem;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.03em;
 }
 
 .analysis-subtitle {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 1.15rem;
-  max-width: 600px;
+  max-width: 620px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 .analysis-content {
@@ -32,29 +35,59 @@
 
 .analyzers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
   width: 100%;
+  align-items: start;
 }
 
 .analyzer-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  height: 100%;
 }
 
 .analyzer-title {
-  font-size: 1.5rem;
-  color: var(--text-main);
+  font-size: 1.35rem;
+  color: #ffffff;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.75rem;
+  padding-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  letter-spacing: -0.01em;
 }
 
-@media (max-width: 1024px) {
+.analyzer-title::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--highlight-cyan);
+  box-shadow: 0 0 10px var(--highlight-cyan);
+}
+
+@media (max-width: 1100px) {
   .analyzers-grid {
     grid-template-columns: 1fr;
-    max-width: 800px;
+    max-width: 750px;
     margin: 0 auto;
-    gap: 4rem;
+    gap: 3.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .analysis-page-container {
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .analysis-header h1 {
+    font-size: 2.35rem;
+  }
+
+  .analysis-subtitle {
+    font-size: 1rem;
   }
 }
