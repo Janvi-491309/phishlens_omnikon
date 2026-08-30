@@ -1,74 +1,122 @@
-import { useState } from 'react';
-import MessageAnalyzer from '../components/MessageAnalyzer';
-import URLAnalyzer from '../components/URLAnalyzer';
-import ScreenshotAnalyzer from '../components/ScreenshotAnalyzer';
-import './Analysis.css';
+import React, { useState, useRef } from "react";
+import "./Analysis.css";
 
-const TABS = [
-  { id: 'message', label: 'Message Scan', emoji: '💬', color: 'blue' },
-  { id: 'url', label: 'Link Check', emoji: '🔗', color: 'cyan' },
-  { id: 'screenshot', label: 'Screenshot OCR', emoji: '🖼', color: 'purple' },
-];
+import MessageAnalyzer from "../components/MessageAnalyzer";
+import URLAnalyzer from "../components/URLAnalyzer";
+import ScreenshotAnalyzer from "../components/ScreenshotAnalyzer";
 
-export default function Analysis() {
-  const [activeTab, setActiveTab] = useState('message');
+const Analysis = () => {
+  const [activeTab, setActiveTab] = useState("message");
+  const [screenshotImage, setScreenshotImage] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleScreenshotUpload = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      setIsUploading(true);
+
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        setScreenshotImage(e.target.result);
+        setIsUploading(false);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClearScreenshot = () => {
+    setScreenshotImage(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <div className="analysis-page-container">
-      <div className="analysis-header scanner-hero">
+      <div className="analysis-header">
         <h1>Security Scanner</h1>
+
         <p className="analysis-subtitle">
-          Scan suspicious messages, links and screenshots in one unified dashboard.
+          AI-powered phishing detection for messages, links, and screenshots.
         </p>
       </div>
 
       <div className="scanner-container">
-        <div className="scanner-tabs" role="tablist" aria-label="Security scanner tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              role="tab"
-              type="button"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`scanner-panel-${tab.id}`}
-              id={`scanner-tab-${tab.id}`}
-              className={`scanner-tab ${tab.color}-tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <span className="tab-emoji" aria-hidden="true">{tab.emoji}</span>
-              <span className="tab-label">{tab.label}</span>
-            </button>
-          ))}
-          <div className={`tab-indicator ${activeTab}`} aria-hidden="true" />
+        <div className="scanner-tabs">
+          <button
+            className={`scanner-tab blue-tab ${
+              activeTab === "message" ? "active" : ""
+            }`}
+            onClick={() => handleTabChange("message")}
+          >
+            <span className="tab-emoji">📧</span>
+            Message Scan
+          </button>
+
+          <button
+            className={`scanner-tab cyan-tab ${
+              activeTab === "url" ? "active" : ""
+            }`}
+            onClick={() => handleTabChange("url")}
+          >
+            <span className="tab-emoji">🔗</span>
+            Link Check
+          </button>
+
+          <button
+            className={`scanner-tab purple-tab ${
+              activeTab === "screenshot" ? "active" : ""
+            }`}
+            onClick={() => handleTabChange("screenshot")}
+          >
+            <span className="tab-emoji">📸</span>
+            Screenshot OCR
+          </button>
         </div>
 
         <div className="scanner-panels">
           <div
-            id="scanner-panel-message"
-            role="tabpanel"
-            aria-labelledby="scanner-tab-message"
-            className={`scanner-panel ${activeTab === 'message' ? 'active' : ''}`}
+            className={`scanner-panel ${
+              activeTab === "message" ? "active" : ""
+            }`}
           >
             <MessageAnalyzer />
           </div>
+
           <div
-            id="scanner-panel-url"
-            role="tabpanel"
-            aria-labelledby="scanner-tab-url"
-            className={`scanner-panel ${activeTab === 'url' ? 'active' : ''}`}
+            className={`scanner-panel ${
+              activeTab === "url" ? "active" : ""
+            }`}
           >
             <URLAnalyzer />
           </div>
+
           <div
-            id="scanner-panel-screenshot"
-            role="tabpanel"
-            aria-labelledby="scanner-tab-screenshot"
-            className={`scanner-panel ${activeTab === 'screenshot' ? 'active' : ''}`}
+            className={`scanner-panel ${
+              activeTab === "screenshot" ? "active" : ""
+            }`}
           >
-            <ScreenshotAnalyzer />
+            <ScreenshotAnalyzer
+              screenshotImage={screenshotImage}
+              isUploading={isUploading}
+              onUpload={handleScreenshotUpload}
+              onClear={handleClearScreenshot}
+              fileInputRef={fileInputRef}
+            />
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Analysis;

@@ -5,6 +5,8 @@
   width: 100%;
 }
 
+/* ================= HERO ================= */
+
 .analysis-header {
   text-align: center;
   margin-bottom: 3rem;
@@ -12,14 +14,18 @@
 }
 
 .analysis-header::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
   width: 700px;
   height: 240px;
-  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.2), transparent 70%);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(37, 99, 235, 0.2),
+    transparent 70%
+  );
   pointer-events: none;
   z-index: -1;
 }
@@ -43,42 +49,62 @@
   line-height: 1.7;
 }
 
-/* ── Unified Security Scanner ── */
+/* ================= SCANNER CONTAINER ================= */
+
 .scanner-container {
   position: relative;
   max-width: 900px;
   margin: 0 auto;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.1), transparent 50%),
-    linear-gradient(145deg, rgba(17, 27, 49, 0.92) 0%, rgba(8, 14, 28, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
   padding: 2rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.1);
+
+  background:
+    radial-gradient(circle at top center, rgba(37,99,235,0.08), transparent 50%),
+    linear-gradient(145deg, rgba(17,27,49,0.92), rgba(8,14,28,0.9));
+
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.55),
+    0 0 40px rgba(37,99,235,0.12);
+
   overflow: hidden;
 }
 
 .scanner-container::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset: 0 auto auto 0;
+  width: 100%;
   height: 3px;
   background: var(--gradient-primary);
-  opacity: 0.9;
-  box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 18px rgba(37,99,235,0.5);
+  animation: scannerGlow 3s ease-in-out infinite;
 }
 
+@keyframes scannerGlow {
+  0%,100% {
+    opacity: .85;
+    box-shadow: 0 0 18px rgba(37,99,235,.4);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 32px rgba(37,99,235,.7);
+  }
+}
+
+/* ================= TABS ================= */
+
 .scanner-tabs {
-  position: relative;
   display: flex;
-  gap: 0.5rem;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: .5rem;
+  margin-bottom: 2rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -88,123 +114,123 @@
 }
 
 .scanner-tab {
-  position: relative;
   flex: 1;
+  min-width: 150px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  padding: 0.9rem 1.25rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: .6rem;
+
+  padding: .9rem 1.2rem;
+
   border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,.08);
+
+  background: rgba(255,255,255,.04);
   color: var(--text-secondary);
-  font-size: 0.95rem;
+
+  font-size: .95rem;
   font-weight: 600;
+
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
-  min-width: 160px;
+
+  transition:
+    transform .25s ease,
+    background .25s ease,
+    border-color .25s ease,
+    color .25s ease,
+    box-shadow .25s ease;
 }
 
 .scanner-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
   transform: translateY(-2px);
+  background: rgba(255,255,255,.08);
+  color: #fff;
 }
 
 .scanner-tab:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--highlight-cyan);
+  box-shadow: 0 0 0 2px rgba(34,211,238,.5);
 }
 
 .tab-emoji {
   font-size: 1.1rem;
-  line-height: 1;
-  filter: grayscale(0.3);
-  transition: filter 0.3s ease, transform 0.3s ease;
+  transition: transform .25s ease;
+}
+
+.scanner-tab:hover .tab-emoji {
+  transform: scale(1.08);
 }
 
 .scanner-tab.active .tab-emoji {
-  filter: grayscale(0);
   transform: scale(1.15);
 }
 
+/* Active Tab Colors */
+
 .blue-tab.active {
   color: #60a5fa;
-  background: rgba(37, 99, 235, 0.12);
-  border-color: rgba(37, 99, 235, 0.35);
-  box-shadow: 0 0 25px rgba(37, 99, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(37,99,235,.12);
+  border-color: rgba(37,99,235,.35);
+  box-shadow: 0 0 24px rgba(37,99,235,.18);
 }
 
 .cyan-tab.active {
   color: #22d3ee;
-  background: rgba(6, 182, 212, 0.12);
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 0 25px rgba(6, 182, 212, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(6,182,212,.12);
+  border-color: rgba(6,182,212,.35);
+  box-shadow: 0 0 24px rgba(6,182,212,.18);
 }
 
 .purple-tab.active {
   color: #a78bfa;
-  background: rgba(139, 92, 246, 0.12);
-  border-color: rgba(139, 92, 246, 0.35);
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(139,92,246,.12);
+  border-color: rgba(139,92,246,.35);
+  box-shadow: 0 0 24px rgba(139,92,246,.18);
 }
 
-.tab-indicator {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: calc((100% - 1rem) / 3);
-  height: 3px;
-  border-radius: var(--radius-full);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s ease, box-shadow 0.35s ease;
-  z-index: 2;
-}
-
-.tab-indicator.message {
-  transform: translateX(0);
-  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
-}
-
-.tab-indicator.url {
-  transform: translateX(calc(100% + 0.5rem));
-  background: linear-gradient(90deg, transparent, #06b6d4, transparent);
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
-}
-
-.tab-indicator.screenshot {
-  transform: translateX(calc(200% + 1rem));
-  background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
-}
+/* ================= PANELS ================= */
 
 .scanner-panels {
   display: grid;
-  min-height: 300px;
+  min-height: 320px;
 }
 
 .scanner-panel {
-  grid-area: 1 / 1 / 2 / 2;
+  grid-area: 1 / 1;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(16px);
   pointer-events: none;
-  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+  transform: translateY(14px);
+
+  transition:
+    opacity .3s ease,
+    transform .3s ease,
+    visibility .3s ease;
 }
 
 .scanner-panel.active {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
   pointer-events: auto;
-  z-index: 1;
+  transform: translateY(0);
 }
 
+/* ================= MOBILE ================= */
+
 @media (max-width: 768px) {
+  .analysis-page-container {
+    padding: 3rem 1.25rem 5rem;
+  }
+
   .analysis-header h1 {
-    font-size: 2.75rem;
+    font-size: 2.7rem;
+  }
+
+  .analysis-subtitle {
+    font-size: 1.05rem;
   }
 
   .scanner-container {
@@ -212,9 +238,13 @@
   }
 
   .scanner-tab {
-    min-width: 140px;
-    padding: 0.8rem 1rem;
-    font-size: 0.9rem;
+    min-width: 135px;
+    padding: .8rem 1rem;
+    font-size: .9rem;
+  }
+
+  .scanner-panels {
+    min-height: 260px;
   }
 }
 
@@ -227,23 +257,65 @@
     font-size: 2.2rem;
   }
 
+  .analysis-header::before {
+    width: 400px;
+    height: 150px;
+  }
+
   .analysis-subtitle {
     font-size: 1rem;
+    padding: 0 .5rem;
   }
 
   .scanner-container {
-    padding: 1.25rem;
-    border-radius: var(--radius-md);
+    padding: 1.2rem;
+  }
+
+  .scanner-tabs {
+    gap: .4rem;
   }
 
   .scanner-tab {
     flex: 1 0 auto;
     min-width: 120px;
-    padding: 0.75rem 0.9rem;
-    font-size: 0.85rem;
+    padding: .75rem .9rem;
+    font-size: .85rem;
   }
 
   .tab-emoji {
     font-size: 1rem;
+  }
+
+  .scanner-panels {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 360px) {
+  .analysis-page-container {
+    padding: 2rem .75rem 3rem;
+  }
+
+  .analysis-header h1 {
+    font-size: 1.85rem;
+  }
+
+  .analysis-subtitle {
+    font-size: .9rem;
+  }
+
+  .scanner-container {
+    padding: 1rem;
+  }
+
+  .scanner-tab {
+    min-width: 100px;
+    padding: .65rem .7rem;
+    font-size: .75rem;
+    gap: .35rem;
+  }
+
+  .tab-emoji {
+    font-size: .9rem;
   }
 }
