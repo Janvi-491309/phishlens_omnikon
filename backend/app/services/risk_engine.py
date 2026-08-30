@@ -1,3 +1,4 @@
+import math
 from typing import List, Dict, Any
 from app.models.schemas import AnalysisFinding
 
@@ -10,6 +11,52 @@ class RiskEngine:
     """
     def __init__(self):
         pass
+
+    # The ML model is an additional signal, not a replacement for the existing
+    # deterministic rules.  A strong ML-only signal can reach SUSPICIOUS, but
+    # cannot classify a message as HIGH without supporting rule evidence.
+    ML_PHISHING_BONUS_MAX = 35.0
+
+    def calculate_ml_bonus(self, ml_result: Dict[str, Any]) -> float:
+        """Return the bounded ML contribution to a message risk score.
+
+        Only a ready classifier that explicitly predicts ``phishing`` adds
+        risk.  Invalid, unavailable, failed, or safe predictions contribute
+        zero, which preserves the Round 2 rule-based result as a safe fallback.
+        """
+        if not isinstance(ml_result, dict) or not ml_result.get("model_ready"):
+            return 0.0
+        if str(ml_result.get("prediction", "")).lower() != "phishing":
+            return 0.0
+
+        try:
+            probability = float(ml_result.get("probability", 0.0))
+        except (TypeError, ValueError):
+            return 0.0
+        if not math.isfinite(probability):
+            return 0.0
+
+        probability = max(0.0, min(probability, 1.0))
+        return round(self.ML_PHISHING_BONUS_MAX * probability, 2)
+
+    def calculate_hybrid_score(self, rule_score: float, ml_result: Dict[str, Any]) -> float:
+        """Combine Round 2 rules with an optional ML phishing signal.
+
+        ``final = clamp(rule_score + 35 * phishing_confidence, 0, 100)``
+        when the loaded model predicts phishing; otherwise ``final`` is the
+        original rule score.  This makes the calculation deterministic,
+        prevents a model failure from changing API behaviour, and keeps rules
+        sufficient to produce HIGH risk on their own.
+        """
+        try:
+            baseline = float(rule_score)
+        except (TypeError, ValueError):
+            baseline = 0.0
+        if not math.isfinite(baseline):
+            baseline = 0.0
+
+        baseline = max(0.0, min(baseline, 100.0))
+        return round(min(baseline + self.calculate_ml_bonus(ml_result), 100.0), 2)
 
     def calculate_score(self, findings: List[AnalysisFinding], ml_result: Dict[str, Any]) -> float:
         """
@@ -34,17 +81,19 @@ class RiskEngine:
 
     def determine_level(self, score: float) -> str:
         """
-        Translates a numeric risk score (0.0 to 100.0) into a qualitative risk level.
+        Translates a numeric 0.0-100.0 score into the public API risk level.
         """
-        if score == 0.0:
-            return "safe"
-        elif score <= 20.0:
-            return "low"
-        elif score <= 50.0:
-            return "medium"
-        elif score <= 80.0:
-            return "high"
-        else:
-            return "critical"
+        try:
+            score = float(score)
+        except (TypeError, ValueError):
+            score = 0.0
+        if not math.isfinite(score):
+            score = 0.0
+        score = max(0.0, min(score, 100.0))
+        if score <= 30.0:
+            return "SAFE"
+        if score <= 70.0:
+            return "SUSPICIOUS"
+        return "HIGH"
 
 risk_engine = RiskEngine()
