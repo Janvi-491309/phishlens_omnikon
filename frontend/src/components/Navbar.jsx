@@ -25,12 +25,11 @@ export default function Navbar() {
         {/* Desktop nav links */}
         <div className="navbar-links">
           <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>Home</Link>
-          <Link to="/analyze" className={`nav-link ${isActive('/analyze') ? 'active' : ''}`}>Analyze</Link>
         </div>
 
         {/* Desktop CTA */}
         <div className="navbar-actions">
-          <Link to="/analyze" className="btn btn-primary btn-sm">Analyze Now</Link>
+          <Link to="/analyze" className="btn btn-primary btn-sm">Scan Now</Link>
         </div>
 
         {/* Mobile hamburger */}
@@ -54,11 +53,8 @@ export default function Navbar() {
           <Link to="/" className={`mobile-nav-link ${isActive('/') ? 'active' : ''}`} onClick={closeMenu}>
             Home
           </Link>
-          <Link to="/analyze" className={`mobile-nav-link ${isActive('/analyze') ? 'active' : ''}`} onClick={closeMenu}>
-            Analyze
-          </Link>
           <Link to="/analyze" className="btn btn-primary mobile-cta" onClick={closeMenu}>
-            Analyze Now
+            Scan Now
           </Link>
         </div>
       )}

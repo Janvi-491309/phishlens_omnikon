@@ -54,7 +54,7 @@
 /* ─── Desktop Links ──────────────────────────────── */
 .navbar-links {
   display: flex;
-  gap: 2.25rem;
+  gap: 1.5rem;
 }
 
 .nav-link {

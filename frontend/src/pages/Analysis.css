@@ -1,10 +1,5 @@
-@keyframes border-pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
 .analysis-page-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 4rem 2rem 6rem;
   width: 100%;
@@ -12,7 +7,7 @@
 
 .analysis-header {
   text-align: center;
-  margin-bottom: 4.5rem;
+  margin-bottom: 3rem;
   position: relative;
 }
 
@@ -30,7 +25,7 @@
 }
 
 .analysis-header h1 {
-  font-size: 3.75rem;
+  font-size: 3.5rem;
   margin-bottom: 1rem;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
@@ -42,158 +37,213 @@
 
 .analysis-subtitle {
   color: var(--text-secondary);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   max-width: 640px;
   margin: 0 auto;
   line-height: 1.7;
 }
 
-.analysis-content {
-  width: 100%;
+/* ── Unified Security Scanner ── */
+.scanner-container {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.1), transparent 50%),
+    linear-gradient(145deg, rgba(17, 27, 49, 0.92) 0%, rgba(8, 14, 28, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  overflow: hidden;
 }
 
-.analyzers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 2.5rem;
-  width: 100%;
-  align-items: start;
+.scanner-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  opacity: 0.9;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
 }
 
-.analyzer-section {
+.scanner-tabs {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  height: 100%;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.analyzer-title {
-  font-size: 1.35rem;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  letter-spacing: -0.02em;
-  font-weight: 700;
+.scanner-tabs::-webkit-scrollbar {
+  display: none;
 }
 
-.section-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+.scanner-tab {
+  position: relative;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.6rem;
+  padding: 0.9rem 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  min-width: 160px;
+}
+
+.scanner-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateY(-2px);
 }
 
-.message-section .section-icon {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(59, 130, 246, 0.15));
-  border-color: rgba(37, 99, 235, 0.35);
-  box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+.scanner-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--highlight-cyan);
 }
 
-.url-section .section-icon {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(34, 211, 238, 0.15));
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+.tab-emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+  filter: grayscale(0.3);
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
-.screenshot-section .section-icon {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(167, 139, 250, 0.15));
-  border-color: rgba(139, 92, 246, 0.35);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+.scanner-tab.active .tab-emoji {
+  filter: grayscale(0);
+  transform: scale(1.15);
 }
 
-.analyzer-section:hover .section-icon {
-  transform: translateY(-3px) scale(1.08);
-}
-
-.message-section:hover .section-icon {
-  box-shadow: 0 0 30px rgba(37, 99, 235, 0.45);
-}
-
-.url-section:hover .section-icon {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.45);
-}
-
-.screenshot-section:hover .section-icon {
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.45);
-}
-
-.section-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.section-badge {
-  margin-left: auto;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.3rem 0.7rem;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-muted);
-}
-
-.message-section .section-badge {
-  background: rgba(37, 99, 235, 0.12);
-  border-color: rgba(37, 99, 235, 0.25);
+.blue-tab.active {
   color: #60a5fa;
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.url-section .section-badge {
-  background: rgba(6, 182, 212, 0.12);
-  border-color: rgba(6, 182, 212, 0.25);
+.cyan-tab.active {
   color: #22d3ee;
+  background: rgba(6, 182, 212, 0.12);
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.screenshot-section .section-badge {
-  background: rgba(139, 92, 246, 0.12);
-  border-color: rgba(139, 92, 246, 0.25);
+.purple-tab.active {
   color: #a78bfa;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 1100px) {
-  .analyzers-grid {
-    grid-template-columns: 1fr;
-    max-width: 780px;
-    margin: 0 auto;
-    gap: 3rem;
+.tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: calc((100% - 1rem) / 3);
+  height: 3px;
+  border-radius: var(--radius-full);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s ease, box-shadow 0.35s ease;
+  z-index: 2;
+}
+
+.tab-indicator.message {
+  transform: translateX(0);
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+}
+
+.tab-indicator.url {
+  transform: translateX(calc(100% + 0.5rem));
+  background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+}
+
+.tab-indicator.screenshot {
+  transform: translateX(calc(200% + 1rem));
+  background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+}
+
+.scanner-panels {
+  display: grid;
+  min-height: 300px;
+}
+
+.scanner-panel {
+  grid-area: 1 / 1 / 2 / 2;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+}
+
+.scanner-panel.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .analysis-header h1 {
+    font-size: 2.75rem;
+  }
+
+  .scanner-container {
+    padding: 1.5rem;
+  }
+
+  .scanner-tab {
+    min-width: 140px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .analysis-page-container {
-    padding: 2.5rem 1.25rem 4rem;
+    padding: 2.5rem 1rem 4rem;
   }
 
   .analysis-header h1 {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
   }
 
   .analysis-subtitle {
     font-size: 1rem;
   }
 
-  .analyzer-title {
-    font-size: 1.15rem;
+  .scanner-container {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
   }
 
-  .section-icon {
-    width: 38px;
-    height: 38px;
+  .scanner-tab {
+    flex: 1 0 auto;
+    min-width: 120px;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.85rem;
   }
 
-  .section-badge {
-    font-size: 0.65rem;
-    padding: 0.25rem 0.55rem;
+  .tab-emoji {
+    font-size: 1rem;
   }
 }

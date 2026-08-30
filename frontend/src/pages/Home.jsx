@@ -16,8 +16,16 @@ export default function Home() {
             PhishLens analyzes suspicious messages, URLs, and screenshots to identify phishing risks and provide safe-action guidance in your regional language.
           </p>
           <div className="hero-actions">
-            <Link to="/analyze" className="btn btn-primary btn-lg">Analyze Message</Link>
-            <Link to="/analyze" className="btn btn-secondary btn-lg">Upload Screenshot</Link>
+            <Link to="/analyze" state={{ tab: 'message' }} className="btn btn-primary btn-lg hero-cta-primary">
+              <span>Analyze Message</span>
+              <svg className="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </Link>
+            <Link to="/analyze" state={{ tab: 'screenshot' }} className="btn btn-secondary btn-lg hero-cta-secondary">
+              Upload Screenshot
+            </Link>
           </div>
         </div>
         
