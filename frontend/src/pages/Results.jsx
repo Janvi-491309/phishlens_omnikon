@@ -1,154 +1,185 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import './Results.css';
 
-/* ─── Helper: Classify risk level ───────────────── */
+/* ================= Risk Classification ================= */
 function getRiskClass(risk_score, risk_level) {
+  const score = Number(risk_score) || 0;
   const level = (risk_level || '').toUpperCase();
-  if (level === 'HIGH' || risk_score >= 70) return 'risk-high';
-  if (level === 'MEDIUM' || level === 'SUSPICIOUS' || risk_score >= 40) return 'risk-medium';
+
+  if (level === 'HIGH' || score >= 70) return 'risk-high';
+  if (level === 'MEDIUM' || level === 'SUSPICIOUS' || score >= 40)
+    return 'risk-medium';
+
   return 'risk-low';
 }
 
-/* ─── Component: Risk Badge ──────────────────────── */
+/* ================= Risk Badge ================= */
 function RiskBadge({ riskLevel, riskClass }) {
   return (
     <div className={`risk-badge ${riskClass}`} role="status">
       <span className="risk-badge-dot" aria-hidden="true"></span>
-      <span>{riskLevel || 'UNKNOWN'} RISK</span>
+      <span>{(riskLevel || 'UNKNOWN').toUpperCase()} RISK</span>
     </div>
   );
 }
 
-/* ─── Component: Risk Score Card ─────────────────── */
+/* ================= Risk Score Card ================= */
 function RiskScoreCard({ riskScore, riskLevel, riskClass }) {
+  const score = Math.max(0, Math.min(Number(riskScore) || 0, 100));
+
   return (
-    <aside className="score-section risk-score-card" aria-label="Risk assessment score">
+    <aside className="score-section risk-score-card">
       <RiskBadge riskLevel={riskLevel} riskClass={riskClass} />
 
-      <div 
-        className={`score-circle ${riskClass}`} 
-        aria-label={`Threat score: ${riskScore ?? 'unknown'} out of 100`}
-      >
-        <span className="score-value">{riskScore !== undefined ? riskScore : '?'}</span>
-        <span className="score-max">/100</span>
+      <div className={`score-circle-wrapper ${riskClass}`}>
+        <div
+          className={`score-progress-ring ${riskClass}`}
+          style={{ '--score': `${score}%` }}
+        >
+          <div className={`score-circle-glow ${riskClass}`}>
+            <div
+              className={`score-circle ${riskClass}`}
+              aria-label={`Threat score: ${score} out of 100`}
+            >
+              <span className="score-value">{score}</span>
+              <span className="score-max">/100</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="score-meta">
         <h2 className="score-label">Threat Score</h2>
         <p className="score-description">
-          {riskScore >= 70 ? 'High probability of malicious intent' :
-           riskScore >= 40 ? 'Suspicious patterns detected' :
-           'No immediate threat detected'}
+          {score >= 70
+            ? 'High probability of phishing or malicious activity detected.'
+            : score >= 40
+            ? 'Suspicious patterns detected. Verify before interacting.'
+            : 'No immediate phishing indicators were detected.'}
         </p>
+      </div>
+
+      <div className="threat-summary glass-card">
+        <div className="summary-item">
+          <span className="summary-label">Risk Level</span>
+          <span className="summary-value">{riskLevel || 'Unknown'}</span>
+        </div>
+
+        <div className="summary-item">
+          <span className="summary-label">Scan Type</span>
+          <span className="summary-value">Multi-Vector Scan</span>
+        </div>
+
+        <div className="summary-item">
+          <span className="summary-label">Threat Confidence</span>
+          <span className="summary-value">
+            {score >= 70 ? 'High' : score >= 40 ? 'Medium' : 'Low'}
+          </span>
+        </div>
       </div>
     </aside>
   );
 }
 
-/* ─── Component: Explanation Card ────────────────── */
+/* ================= Explanation Card ================= */
 function ExplanationCard({ explanation }) {
   return (
-    <div className="result-sub-card explanation-card">
+    <section className="result-sub-card explanation-card glass-card">
       <div className="result-sub-card-header">
-        <span className="result-sub-card-icon icon-explanation" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-        </span>
+        <span className="result-sub-card-icon icon-explanation">🧠</span>
         <h3>Analysis Explanation</h3>
       </div>
+
       <div className="result-sub-card-body">
-        <p>{explanation || 'No explanation was provided by the analysis engine.'}</p>
+        <p>
+          {explanation ||
+            'No explanation was returned from the phishing analysis engine.'}
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
-/* ─── Component: Findings List ───────────────────── */
+/* ================= Findings Card ================= */
 function FindingsList({ findings }) {
   return (
-    <div className="result-sub-card findings-card">
+    <section className="result-sub-card findings-card glass-card">
       <div className="result-sub-card-header">
-        <span className="result-sub-card-icon icon-findings" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-        </span>
-        <h3>Key Threat Indicators</h3>
+        <span className="result-sub-card-icon icon-findings">🚨</span>
+        <h3>Threat Indicators Detected</h3>
       </div>
+
       <div className="result-sub-card-body">
-        {findings && findings.length > 0 ? (
-          <ul className="indicators-list" aria-label="Detected threat indicators">
+        {Array.isArray(findings) && findings.length > 0 ? (
+          <ul className="indicators-list">
             {findings.map((finding, index) => (
               <li key={index}>
-                <span className="indicator-icon" aria-hidden="true">⚠️</span>
+                <span className="indicator-icon">⚠️</span>
                 <span className="indicator-text">{finding}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="no-findings">No specific threat indicators were detected.</p>
+          <p className="no-findings">
+            No specific phishing indicators were detected.
+          </p>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
-/* ─── Component: Safe Action Card ────────────────── */
+/* ================= Safe Action Card ================= */
 function SafeActionCard({ safeAction }) {
   return (
-    <div className="result-sub-card safe-action-card">
+    <section className="result-sub-card safe-action-card glass-card">
       <div className="result-sub-card-header">
-        <span className="result-sub-card-icon icon-safe-action" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <polyline points="9 12 11 14 15 10" />
-          </svg>
-        </span>
+        <span className="result-sub-card-icon icon-safe-action">🛡️</span>
         <h3>Recommended Safe Action</h3>
       </div>
+
       <div className="result-sub-card-body">
-        <div className="safe-action-box" role="note" aria-label="Safety recommendation">
-          <span className="action-icon" aria-hidden="true">🛡️</span>
-          <p>{safeAction || 'No specific action was provided. Proceed with caution.'}</p>
+        <div className="safe-action-box">
+          <p>
+            {safeAction ||
+              'No recommendation was returned. Treat this content with caution.'}
+          </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-/* ─── Main Results Page ──────────────────────────── */
+/* ================= Results Page ================= */
 export default function Results() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Backend contract from Round 2 — DO NOT CHANGE
   const result = location.state?.result;
 
-  /* Empty state */
+  /* ---------- Empty State ---------- */
   if (!result) {
     return (
-      <div className="results-page-container empty-state" role="main">
+      <main className="results-page-container empty-state">
         <div className="results-header">
-          <div className="empty-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </div>
+          <div className="empty-icon">🔍</div>
+
           <h1>No Results Found</h1>
-          <p className="results-subtitle">Please submit a message, URL or screenshot for analysis first.</p>
+
+          <p className="results-subtitle">
+            Submit a suspicious message, URL or screenshot before viewing the
+            threat report.
+          </p>
+
           <button
             className="btn btn-primary btn-lg"
-            style={{ marginTop: '2rem' }}
             onClick={() => navigate('/analyze')}
           >
-            Go to Analysis
+            Go to Security Scanner
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -156,45 +187,57 @@ export default function Results() {
   const riskClass = getRiskClass(risk_score, risk_level);
 
   return (
-    <div className="results-page-container" role="main">
-      <div className="results-header fade-in-up">
-        <h1>Analysis Results</h1>
-        <p className="results-subtitle">Multi-vector threat intelligence assessment complete.</p>
-      </div>
+    <main className="results-page-container">
+      {/* ================= HERO ================= */}
+      <section className="hero-section glass-hero fade-in-up">
+        <div className="hero-glow"></div>
 
-      <div className="results-content">
-        {/* ── Main Outer Card ── */}
-        <div className="results-card fade-in-up" style={{ animationDelay: '0.08s' }}>
+        <div className="hero-content">
+          <div className="hero-icon-wrapper">
+            <div className="hero-icon">🛡️</div>
+          </div>
 
-          {/* Left: Score Card Panel */}
-          <RiskScoreCard 
-            riskScore={risk_score} 
-            riskLevel={risk_level} 
-            riskClass={riskClass} 
+          <div className="scan-status-pill">✔ Scan Complete</div>
+
+          <h1 className="threat-report-title">Threat Analysis Report</h1>
+
+          <p className="results-subtitle">
+            PhishLens completed a multi-vector phishing intelligence assessment
+            across suspicious messages, URLs and screenshots.
+          </p>
+        </div>
+      </section>
+
+      {/* ================= DASHBOARD ================= */}
+      <section className="results-content">
+        <div className="results-card fade-in-up">
+          <RiskScoreCard
+            riskScore={risk_score}
+            riskLevel={risk_level}
+            riskClass={riskClass}
           />
 
-          {/* Right: Details Cards */}
-          <div className="details-section">
+          <div className="intelligence-panel">
             <ExplanationCard explanation={explanation} />
             <FindingsList findings={findings} />
             <SafeActionCard safeAction={safe_action} />
           </div>
         </div>
 
-        {/* ── Action Buttons ── */}
-        <div className="results-actions fade-in-up" style={{ animationDelay: '0.16s' }}>
-          <Link to="/analyze" className="btn btn-primary btn-lg">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }} aria-hidden="true">
-              <polyline points="1 4 1 10 7 10" />
-              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-            </svg>
-            Analyze Another
+        {/* ================= ACTION BUTTONS ================= */}
+        <section className="results-actions fade-in-up">
+          <Link
+            to="/analyze"
+            className="btn btn-primary btn-lg scan-again-btn"
+          >
+            Analyze Another Item
           </Link>
+
           <Link to="/" className="btn btn-secondary btn-lg">
             Return Home
           </Link>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </main>
   );
 }
