@@ -51,7 +51,13 @@ def analyze_message(request: MessageAnalysisRequest) -> MessageAnalysisResponse:
             f"(confidence: {float(ml_result['probability']):.2f})"
         )
 
-    explanation = message_analyzer.build_explanation(risk_score, risk_level, findings)
+    explanation = gemini_explainer.explain(
+        content_type="message",
+        raw_content=request.text,
+        findings=findings,
+        risk_score=risk_score,
+        risk_level=risk_level,
+    )
     safe_action = message_analyzer.build_safe_action(risk_level)
     
     return MessageAnalysisResponse(
