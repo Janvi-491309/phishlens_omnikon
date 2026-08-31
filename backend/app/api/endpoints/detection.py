@@ -12,15 +12,18 @@ from app.services import (
     url_analyzer,
     risk_engine,
     ml_classifier,
-    gemini_explainer
+    gemini_explainer,
+    language_detector,
 )
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _predict_message_safely(text: str) -> dict:
+def _predict_message_safely(text: str, language: str = "en") -> dict:
     """Get an ML result without allowing model problems to interrupt the API."""
+    if not ml_classifier.supports_language(language):
+        return {"prediction": "safe", "probability": 0.0, "model_ready": False}
     try:
         result = ml_classifier.predict(text)
         if isinstance(result, dict):
@@ -38,8 +41,9 @@ def analyze_message(request: MessageAnalysisRequest) -> MessageAnalysisResponse:
     """
     # Preserve the Round 2 heuristic analysis as the baseline, then let the
     # risk engine add a bounded ML phishing signal when the model is available.
-    result = message_analyzer.analyze(request.text)
-    ml_result = _predict_message_safely(request.text)
+    language = language_detector.detect(request.text, request.language)
+    result = message_analyzer.analyze(request.text, language)
+    ml_result = _predict_message_safely(request.text, language)
     risk_score = risk_engine.calculate_hybrid_score(result["risk_score"], ml_result)
     risk_level = risk_engine.determine_level(risk_score)
 
@@ -57,12 +61,14 @@ def analyze_message(request: MessageAnalysisRequest) -> MessageAnalysisResponse:
         findings=findings,
         risk_score=risk_score,
         risk_level=risk_level,
+        language=language,
     )
-    safe_action = message_analyzer.build_safe_action(risk_level)
+    safe_action = message_analyzer.build_safe_action(risk_level, language)
     
     return MessageAnalysisResponse(
         risk_score=risk_score,
         risk_level=risk_level,
+        language=language,
         findings=findings,
         explanation=explanation,
         safe_action=safe_action

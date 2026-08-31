@@ -83,7 +83,12 @@ class MLClassifier:
         """Returns True when the real model is loaded and ready."""
         return self._loaded
 
-    def predict(self, content: str) -> Dict[str, Any]:
+    @staticmethod
+    def supports_language(language: str) -> bool:
+        """The bundled model was trained solely on English examples."""
+        return language == "en"
+
+    def predict(self, content: str, language: str = "en") -> Dict[str, Any]:
         """
         Runs the phishing classifier on the given text content.
 
@@ -96,6 +101,15 @@ class MLClassifier:
                 probability — float in [0.0, 1.0], confidence in the prediction
                 model_ready — bool, whether the real model was used
         """
+        # Do not let an English-only model influence assessments in another
+        # language merely because its vectorizer accepts Unicode input.
+        if not self.supports_language(language):
+            return {
+                "prediction": "safe",
+                "probability": 0.0,
+                "model_ready": False,
+            }
+
         # --- Guard: empty or non-string input ---
         if not content or not isinstance(content, str) or not content.strip():
             return {
