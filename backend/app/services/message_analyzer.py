@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from typing import Dict, Any, List
 
 class MessageAnalyzer:
@@ -38,6 +39,29 @@ class MessageAnalyzer:
             "helpdesk", "it support", "security department", "customer service",
             "sbi"
         ]
+
+        # Curated Telugu and Romanized Telugu equivalents for the existing
+        # categories.  They supplement (rather than replace) the English rules.
+        self.urgency_keywords.extend([
+            "వెంటనే", "ఇప్పుడే", "తక్షణం", "అత్యవసరం", "త్వరగా",
+            "ventane", "ippude", "takshanam", "atyavasaram", "verify cheyyandi",
+        ])
+        self.threat_keywords.extend([
+            "చట్టపరమైన చర్య", "అరెస్ట్", "జరిమానా", "ఖాతా బ్లాక్", "ఖాతా నిలిపివేయబడింది",
+            "ఖాతా సస్పెండ్", "legal action", "arrest", "account block", "account suspend",
+        ])
+        self.credential_keywords.extend([
+            "పాస్‌వర్డ్", "పాస్వర్డ్", "ఓటీపీ", "పిన్", "సీవీవీ", "వివరాలు పంపండి",
+            "password pampandi", "otp pampandi", "pin pampandi", "credentials pampandi",
+        ])
+        self.prize_keywords.extend([
+            "బహుమతి", "గెలిచారు", "లాటరీ", "రివార్డు", "నగదు బహుమతి",
+            "dabbu gelicharu", "prize gelicharu", "bahumati", "lottery gelicharu",
+        ])
+        self.impersonation_keywords.extend([
+            "bank customer care", "bank officer", "sbi officer", "bank manager",
+            "బ్యాంక్ కస్టమర్ కేర్", "బ్యాంక్ అధికారి", "బ్యాంక్ మేనేజర్", "ఎస్‌బీఐ అధికారి",
+        ])
         
         # URL Regex matching http/https links, www. links, or common domains
         self.url_pattern = re.compile(
@@ -56,19 +80,37 @@ class MessageAnalyzer:
         )
 
     @staticmethod
-    def build_safe_action(risk_level: str) -> str:
+    def build_safe_action(risk_level: str, language: str = "en") -> str:
         """Return the established Round 2 safety guidance for a risk level."""
+        if language == "te":
+            if risk_level == "SAFE":
+                return "తక్షణ చర్య అవసరం లేదు. సాధారణ భద్రతా జాగ్రత్తలు కొనసాగించండి."
+            if risk_level == "SUSPICIOUS":
+                return "పాస్‌వర్డ్‌లు, OTPలు లేదా వివరాలు పంచుకోకండి. సంస్థ అధికారిక వెబ్‌సైట్‌లో ధృవీకరించండి."
+            return "లింక్‌లను తెరవకండి లేదా పాస్‌వర్డ్‌లు, OTPలు, వివరాలు పంచుకోకండి. అధికారిక వెబ్‌సైట్‌లో ధృవీకరించండి."
+        if language == "te-Latn":
+            if risk_level == "SAFE":
+                return "Ventane emi cheyalsina avasaram ledu. Saadharana bhadrata jagrathalu patinchandi."
+            if risk_level == "SUSPICIOUS":
+                return "Passwords, OTPs, leda credentials panchukovaddu. Samstha adhikarika website lo verify cheyyandi."
+            return "Links open cheyakandi leda passwords, OTPs, credentials panchukovaddu. Adhikarika website lo verify cheyyandi."
+        if language == "mixed":
+            if risk_level == "SAFE":
+                return "No immediate action is required. సాధారణ భద్రతా జాగ్రత్తలు కొనసాగించండి."
+            if risk_level == "SUSPICIOUS":
+                return "Do not share passwords, OTPs, or credentials. సంస్థ అధికారిక వెబ్‌సైట్‌లో ధృవీకరించండి."
+            return "Do not click links or share passwords, OTPs, or credentials. అధికారిక వెబ్‌సైట్‌లో ధృవీకరించండి."
         if risk_level == "SAFE":
             return "No immediate action is required. Continue to use normal security precautions."
         if risk_level == "SUSPICIOUS":
             return "Do not share passwords, OTPs, or credentials. Verify the message through the organization's official website."
         return "Do not click links or share passwords, OTPs, or other credentials. Verify the request through the official website."
 
-    def analyze(self, text: str) -> Dict[str, Any]:
+    def analyze(self, text: str, language: str = "en") -> Dict[str, Any]:
         """
         Runs rule-based checks on the message content and calculates the risk score and findings.
         """
-        text_lower = text.lower()
+        text_lower = unicodedata.normalize("NFKC", text).casefold()
         findings = []
         score = 0
         
@@ -131,7 +173,7 @@ class MessageAnalyzer:
             risk_level = "HIGH"
             
         explanation = self.build_explanation(float(score), risk_level, findings)
-        safe_action = self.build_safe_action(risk_level)
+        safe_action = self.build_safe_action(risk_level, language)
 
         return {
             "risk_score": float(score),

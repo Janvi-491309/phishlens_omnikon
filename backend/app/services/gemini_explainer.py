@@ -26,7 +26,19 @@ class GeminiExplainer:
         self._client = client
 
     @staticmethod
-    def _fallback(risk_score: float, risk_level: str, findings: List[str]) -> str:
+    def _fallback(risk_score: float, risk_level: str, findings: List[str], language: str = "en") -> str:
+        if language == "te":
+            if not findings:
+                return "అనుమానాస్పద సంకేతాలు కనిపించలేదు. సందేశం సురక్షితంగా కనిపిస్తోంది."
+            return f"ఈ సందేశం {risk_level}గా వర్గీకరించబడింది; ప్రమాద స్కోరు {risk_score}/100. గుర్తించిన సంకేతాలు: {', '.join(findings)}."
+        if language == "te-Latn":
+            if not findings:
+                return "Anumanaaspada sanketalu kanipinchaledu. Sandesam surakshitanga kanipistondi."
+            return f"Ee sandesam {risk_level} ga vargikarinchabadindi; risk score {risk_score}/100. Gurthinchina sanketalu: {', '.join(findings)}."
+        if language == "mixed":
+            if not findings:
+                return "No suspicious indicators were detected. సందేశం సురక్షితంగా కనిపిస్తోంది."
+            return f"This message is {risk_level} with a risk score of {risk_score}/100. గుర్తించిన సంకేతాలు: {', '.join(findings)}."
         if not findings:
             return "No suspicious indicators were detected in the message. It appears to be safe."
         return (
@@ -67,9 +79,10 @@ class GeminiExplainer:
         findings: List[str],
         risk_score: float,
         risk_level: str,
+        language: str = "en",
     ) -> str:
         """Return a concise Gemini explanation or the deterministic fallback."""
-        fallback = self._fallback(risk_score, risk_level, findings)
+        fallback = self._fallback(risk_score, risk_level, findings, language)
         client = self._get_client()
         if client is None:
             return fallback
@@ -80,12 +93,14 @@ class GeminiExplainer:
             "findings": findings,
             "final_risk_score": risk_score,
             "final_risk_level": risk_level,
+            "resolved_language": language,
         }
         prompt = (
             "Write a concise, user-friendly security explanation using only the supplied "
             "assessment data. Do not invent findings, recalculate the score, change the risk "
             "level, or provide dangerous instructions. State the supplied risk level and score "
-            "accurately. Return plain text only.\n\n"
+            "accurately. Explain in the resolved language (Telugu script for te, Romanized Telugu "
+            "for te-Latn, and bilingual/neutral wording for mixed). Return plain text only.\n\n"
             f"Assessment data:\n{json.dumps(prompt_data, ensure_ascii=False)}"
         )
 
