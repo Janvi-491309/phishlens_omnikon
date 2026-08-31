@@ -1,69 +1,87 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import "./Navbar.css";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import './Navbar.css';
 
-const LANGUAGE_STORAGE_KEY = "phishlens-language";
-const LANGUAGE_CHANGE_EVENT = "phishlens-language-change";
+const translations = {
+  en: {
+    home: 'Home',
+    analysis: 'Analysis',
+    results: 'Results',
+    scanNow: 'Scan Now',
+    languageLabel: 'Language',
+    openMenu: 'Open navigation menu',
+    closeMenu: 'Close navigation menu',
+  },
 
-const supportedLanguages = ["en", "hi", "te"];
+  hi: {
+    home: 'होम',
+    analysis: 'विश्लेषण',
+    results: 'परिणाम',
+    scanNow: 'अभी स्कैन करें',
+    languageLabel: 'भाषा',
+    openMenu: 'नेविगेशन मेनू खोलें',
+    closeMenu: 'नेविगेशन मेनू बंद करें',
+  },
+
+  te: {
+    home: 'హోమ్',
+    analysis: 'విశ్లేషణ',
+    results: 'ఫలితాలు',
+    scanNow: 'ఇప్పుడే స్కాన్ చేయండి',
+    languageLabel: 'భాష',
+    openMenu: 'నావిగేషన్ మెనూను తెరవండి',
+    closeMenu: 'నావిగేషన్ మెనూను మూసివేయండి',
+  },
+};
+
+const getSelectedLanguage = () => {
+  const storedLanguage =
+    localStorage.getItem('phishlens-language');
+
+  const validLanguages = ['en', 'hi', 'te'];
+
+  return validLanguages.includes(storedLanguage)
+    ? storedLanguage
+    : 'en';
+};
 
 export default function Navbar() {
   const location = useLocation();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [language, setLanguage] = useState("en");
 
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-
-    if (supportedLanguages.includes(savedLanguage)) {
-      setLanguage(savedLanguage);
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleLanguageEvent = (event) => {
-      const selectedLanguage = event.detail;
-
-      if (supportedLanguages.includes(selectedLanguage)) {
-        setLanguage(selectedLanguage);
-      }
-    };
-
-    window.addEventListener(
-      LANGUAGE_CHANGE_EVENT,
-      handleLanguageEvent
-    );
-
-    return () => {
-      window.removeEventListener(
-        LANGUAGE_CHANGE_EVENT,
-        handleLanguageEvent
-      );
-    };
-  }, []);
+  const [language, setLanguage] = useState(
+    getSelectedLanguage
+  );
 
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) =>
+    location.pathname === path;
+
+  const t =
+    translations[language] || translations.en;
 
   const handleLanguageChange = (event) => {
     const selectedLanguage = event.target.value;
 
-    if (!supportedLanguages.includes(selectedLanguage)) {
+    const validLanguages = ['en', 'hi', 'te'];
+
+    if (!validLanguages.includes(selectedLanguage)) {
       return;
     }
 
     setLanguage(selectedLanguage);
+
     localStorage.setItem(
-      LANGUAGE_STORAGE_KEY,
+      'phishlens-language',
       selectedLanguage
     );
 
     window.dispatchEvent(
-      new CustomEvent(LANGUAGE_CHANGE_EVENT, {
+      new CustomEvent('phishlens-language-change', {
         detail: selectedLanguage,
       })
     );
@@ -72,13 +90,12 @@ export default function Navbar() {
   return (
     <header className="navbar-wrapper">
       <nav className="navbar">
-        {/* Brand */}
         <Link
           to="/"
           className="navbar-brand"
           onClick={closeMenu}
         >
-          <div className="brand-logo" aria-hidden="true">
+          <div className="brand-logo">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -86,33 +103,53 @@ export default function Navbar() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <circle cx="12" cy="11" r="3" />
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <circle
+                cx="12"
+                cy="11"
+                r="3"
+              ></circle>
             </svg>
           </div>
 
-          <span className="brand-name">PhishLens</span>
+          <span className="brand-name">
+            PhishLens
+          </span>
         </Link>
 
-        {/* Desktop navigation */}
+        {/* Desktop nav links */}
         <div className="navbar-links">
           <Link
             to="/"
             className={`nav-link ${
-              isActive("/") ? "active" : ""
+              isActive('/') ? 'active' : ''
             }`}
           >
-            Home
+            {t.home}
+          </Link>
+
+          <Link
+            to="/analyze"
+            className={`nav-link ${
+              isActive('/analyze')
+                ? 'active'
+                : ''
+            }`}
+          >
+            {t.analysis}
           </Link>
 
           <Link
             to="/results"
             className={`nav-link ${
-              isActive("/results") ? "active" : ""
+              isActive('/results')
+                ? 'active'
+                : ''
             }`}
           >
-            Results
+            {t.results}
           </Link>
         </div>
 
@@ -120,112 +157,135 @@ export default function Navbar() {
         <div className="navbar-actions">
           <div className="navbar-language">
             <span
-              className="navbar-language-icon"
+              className="language-icon"
               aria-hidden="true"
             >
               🌐
             </span>
 
-            <label
-              htmlFor="navbar-language-select"
-              className="sr-only"
-            >
-              Select language
-            </label>
-
             <select
-              id="navbar-language-select"
               className="navbar-language-select"
               value={language}
               onChange={handleLanguageChange}
+              aria-label={t.languageLabel}
             >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी</option>
-              <option value="te">తెలుగు</option>
+              <option value="en">
+                English
+              </option>
+
+              <option value="hi">
+                हिन्दी
+              </option>
+
+              <option value="te">
+                తెలుగు
+              </option>
             </select>
           </div>
 
           <Link
             to="/analyze"
             className="btn btn-primary btn-sm"
+            onClick={closeMenu}
           >
-            Scan Now
+            {t.scanNow}
           </Link>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile hamburger */}
         <button
           type="button"
           className={`hamburger ${
-            isMenuOpen ? "open" : ""
+            isMenuOpen ? 'open' : ''
           }`}
-          onClick={() => setIsMenuOpen((prev) => !prev)}
+          onClick={() =>
+            setIsMenuOpen((prev) => !prev)
+          }
           aria-label={
             isMenuOpen
-              ? "Close navigation menu"
-              : "Open navigation menu"
+              ? t.closeMenu
+              : t.openMenu
           }
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
         >
-          <span />
-          <span />
-          <span />
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile dropdown menu */}
       {isMenuOpen && (
         <div
           id="mobile-menu"
           className="mobile-menu"
           role="navigation"
-          aria-label="Mobile navigation"
+          aria-label={t.openMenu}
         >
           <Link
             to="/"
             className={`mobile-nav-link ${
-              isActive("/") ? "active" : ""
+              isActive('/')
+                ? 'active'
+                : ''
             }`}
             onClick={closeMenu}
           >
-            Home
+            {t.home}
+          </Link>
+
+          <Link
+            to="/analyze"
+            className={`mobile-nav-link ${
+              isActive('/analyze')
+                ? 'active'
+                : ''
+            }`}
+            onClick={closeMenu}
+          >
+            {t.analysis}
           </Link>
 
           <Link
             to="/results"
             className={`mobile-nav-link ${
-              isActive("/results") ? "active" : ""
+              isActive('/results')
+                ? 'active'
+                : ''
             }`}
             onClick={closeMenu}
           >
-            Results
+            {t.results}
           </Link>
 
           <div className="mobile-language">
-            <span
-              className="mobile-language-icon"
-              aria-hidden="true"
-            >
-              🌐
-            </span>
-
-            <label
-              htmlFor="mobile-language-select"
-              className="mobile-language-label"
-            >
-              Language
-            </label>
+            <div className="mobile-language-label">
+              <span aria-hidden="true">
+                🌐
+              </span>
+              <span>
+                {t.languageLabel}
+              </span>
+            </div>
 
             <select
-              id="mobile-language-select"
-              className="mobile-language-select"
+              className="navbar-language-select"
               value={language}
               onChange={handleLanguageChange}
+              aria-label={t.languageLabel}
             >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी</option>
-              <option value="te">తెలుగు</option>
+              <option value="en">
+                English
+              </option>
+
+              <option value="hi">
+                हिन्दी
+              </option>
+
+              <option value="te">
+                తెలుగు
+              </option>
             </select>
           </div>
 
@@ -234,7 +294,7 @@ export default function Navbar() {
             className="btn btn-primary mobile-cta"
             onClick={closeMenu}
           >
-            Scan Now
+            {t.scanNow}
           </Link>
         </div>
       )}
