@@ -31,27 +31,27 @@ def test_analyze_message_safe_brand_only():
     assert len(data["findings"]) == 0
 
 def test_analyze_message_suspicious():
-    # Urgency (20) + Credential request (25) = 45 (SUSPICIOUS)
+    # The Round 2 rules contribute 45. The loaded ML classifier may raise the
+    # final hybrid result when it independently detects phishing language.
     payload = {"text": "Please verify your credentials immediately."}
     response = client.post("/api/analyze/message", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["risk_score"] == 45.0
-    assert data["risk_level"] == "SUSPICIOUS"
-    assert len(data["findings"]) == 2
-    assert data["safe_action"] == "Do not share passwords, OTPs, or credentials. Verify the message through the organization's official website."
+    assert 45.0 <= data["risk_score"] <= 80.0
+    assert data["risk_level"] in {"SUSPICIOUS", "HIGH"}
+    assert len(data["findings"]) >= 2
 
 def test_analyze_message_high_risk():
-    # Urgency (20) + Threat (20) + Credential request (25) + URL (20) + Impersonation (10) = 95 (HIGH)
+    # The Round 2 rules contribute 95; hybrid scoring must never reduce it.
     payload = {
         "text": "URGENT: Your Wells Fargo account is deactivated. Reset your password immediately at http://verify-bank.com"
     }
     response = client.post("/api/analyze/message", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["risk_score"] == 95.0
+    assert 95.0 <= data["risk_score"] <= 100.0
     assert data["risk_level"] == "HIGH"
-    assert len(data["findings"]) == 5
+    assert len(data["findings"]) >= 5
     assert "high" in data["explanation"].lower()
     assert data["safe_action"] == "Do not click links or share passwords, OTPs, or other credentials. Verify the request through the official website."
 

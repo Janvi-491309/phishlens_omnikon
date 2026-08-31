@@ -45,6 +45,25 @@ class MessageAnalyzer:
             re.IGNORECASE
         )
 
+    @staticmethod
+    def build_explanation(score: float, risk_level: str, findings: List[str]) -> str:
+        """Build the user-facing explanation for a final message assessment."""
+        if not findings:
+            return "No suspicious indicators were detected in the message. It appears to be safe."
+        return (
+            f"This message was classified as {risk_level} with a risk score of {score}/100. "
+            f"It triggered the following indicators: {', '.join(findings)}."
+        )
+
+    @staticmethod
+    def build_safe_action(risk_level: str) -> str:
+        """Return the established Round 2 safety guidance for a risk level."""
+        if risk_level == "SAFE":
+            return "No immediate action is required. Continue to use normal security precautions."
+        if risk_level == "SUSPICIOUS":
+            return "Do not share passwords, OTPs, or credentials. Verify the message through the organization's official website."
+        return "Do not click links or share passwords, OTPs, or other credentials. Verify the request through the official website."
+
     def analyze(self, text: str) -> Dict[str, Any]:
         """
         Runs rule-based checks on the message content and calculates the risk score and findings.
@@ -111,22 +130,8 @@ class MessageAnalyzer:
         else:
             risk_level = "HIGH"
             
-        # Generate custom user-friendly explanation
-        if not findings:
-            explanation = "No suspicious indicators were detected in the message. It appears to be safe."
-        else:
-            explanation = (
-                f"This message was classified as {risk_level} with a risk score of {score}/100. "
-                f"It triggered the following indicators: {', '.join(findings)}."
-            )
-
-        # Generate safe_action based on risk_level
-        if risk_level == "SAFE":
-            safe_action = "No immediate action is required. Continue to use normal security precautions."
-        elif risk_level == "SUSPICIOUS":
-            safe_action = "Do not share passwords, OTPs, or credentials. Verify the message through the organization's official website."
-        else:  # HIGH
-            safe_action = "Do not click links or share passwords, OTPs, or other credentials. Verify the request through the official website."
+        explanation = self.build_explanation(float(score), risk_level, findings)
+        safe_action = self.build_safe_action(risk_level)
 
         return {
             "risk_score": float(score),
