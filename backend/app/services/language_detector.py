@@ -5,8 +5,9 @@ import unicodedata
 from typing import Final, Optional
 
 
-SUPPORTED_LANGUAGES: Final = {"en", "te", "te-Latn", "mixed"}
+SUPPORTED_LANGUAGES: Final = {"en", "te", "te-Latn", "hi", "mixed"}
 _TELUGU_RE: Final = re.compile(r"[\u0C00-\u0C7F]")
+_DEVANAGARI_RE: Final = re.compile(r"[\u0900-\u097F]")
 _LATIN_WORD_RE: Final = re.compile(r"[A-Za-z]{2,}")
 _URL_RE: Final = re.compile(r"https?://\S+|www\.\S+", re.IGNORECASE)
 _SECURITY_ABBREVIATIONS: Final = {"otp", "pin", "cvv", "ssn", "2fa"}
@@ -59,6 +60,11 @@ class LanguageDetector:
             if meaningful_latin_words:
                 return "mixed"
             return "te"
+
+        # Hindi is represented in Devanagari. Check it after Telugu so the
+        # scripts remain distinct and Telugu messages never resolve as Hindi.
+        if _DEVANAGARI_RE.search(normalized):
+            return "hi"
 
         folded = normalized.casefold()
         if any(self._contains_phrase(folded, phrase) for phrase in self.ROMANIZED_PHISHING_PHRASES):
