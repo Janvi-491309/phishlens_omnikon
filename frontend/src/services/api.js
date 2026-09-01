@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://phishlens-omnikon.onrender.com/api/docs',
+  baseURL: 'https://phishlens-omnikon.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
