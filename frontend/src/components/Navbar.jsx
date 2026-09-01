@@ -1,14 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
+
+const LANGUAGE_STORAGE_KEY = 'phishlens-language';
+const LANGUAGE_CHANGE_EVENT = 'phishlens-language-change';
+
+const supportedLanguages = ['en', 'hi', 'te'];
 
 const translations = {
   en: {
     home: 'Home',
     analysis: 'Analysis',
+    proactive: 'Proactive Check',
     results: 'Results',
     scanNow: 'Scan Now',
-    languageLabel: 'Language',
+    languageLabel: 'Select language',
     openMenu: 'Open navigation menu',
     closeMenu: 'Close navigation menu',
   },
@@ -16,9 +22,10 @@ const translations = {
   hi: {
     home: 'होम',
     analysis: 'विश्लेषण',
+    proactive: 'सक्रिय जांच',
     results: 'परिणाम',
     scanNow: 'अभी स्कैन करें',
-    languageLabel: 'भाषा',
+    languageLabel: 'भाषा चुनें',
     openMenu: 'नेविगेशन मेनू खोलें',
     closeMenu: 'नेविगेशन मेनू बंद करें',
   },
@@ -26,22 +33,22 @@ const translations = {
   te: {
     home: 'హోమ్',
     analysis: 'విశ్లేషణ',
+    proactive: 'ముందస్తు తనిఖీ',
     results: 'ఫలితాలు',
     scanNow: 'ఇప్పుడే స్కాన్ చేయండి',
-    languageLabel: 'భాష',
+    languageLabel: 'భాషను ఎంచుకోండి',
     openMenu: 'నావిగేషన్ మెనూను తెరవండి',
     closeMenu: 'నావిగేషన్ మెనూను మూసివేయండి',
   },
 };
 
-const getSelectedLanguage = () => {
-  const storedLanguage =
-    localStorage.getItem('phishlens-language');
+const getStoredLanguage = () => {
+  const savedLanguage = localStorage.getItem(
+    LANGUAGE_STORAGE_KEY
+  );
 
-  const validLanguages = ['en', 'hi', 'te'];
-
-  return validLanguages.includes(storedLanguage)
-    ? storedLanguage
+  return supportedLanguages.includes(savedLanguage)
+    ? savedLanguage
     : 'en';
 };
 
@@ -49,10 +56,53 @@ export default function Navbar() {
   const location = useLocation();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const [language, setLanguage] = useState(
-    getSelectedLanguage
+    getStoredLanguage
   );
+
+  useEffect(() => {
+    const handleLanguageEvent = (event) => {
+      const selectedLanguage = event?.detail;
+
+      if (
+        supportedLanguages.includes(
+          selectedLanguage
+        )
+      ) {
+        setLanguage(selectedLanguage);
+      }
+    };
+
+    const handleStorageChange = (event) => {
+      if (
+        event.key === LANGUAGE_STORAGE_KEY
+      ) {
+        setLanguage(getStoredLanguage());
+      }
+    };
+
+    window.addEventListener(
+      LANGUAGE_CHANGE_EVENT,
+      handleLanguageEvent
+    );
+
+    window.addEventListener(
+      'storage',
+      handleStorageChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        LANGUAGE_CHANGE_EVENT,
+        handleLanguageEvent
+      );
+
+      window.removeEventListener(
+        'storage',
+        handleStorageChange
+      );
+    };
+  }, []);
 
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -67,23 +117,28 @@ export default function Navbar() {
   const handleLanguageChange = (event) => {
     const selectedLanguage = event.target.value;
 
-    const validLanguages = ['en', 'hi', 'te'];
-
-    if (!validLanguages.includes(selectedLanguage)) {
+    if (
+      !supportedLanguages.includes(
+        selectedLanguage
+      )
+    ) {
       return;
     }
 
     setLanguage(selectedLanguage);
 
     localStorage.setItem(
-      'phishlens-language',
+      LANGUAGE_STORAGE_KEY,
       selectedLanguage
     );
 
     window.dispatchEvent(
-      new CustomEvent('phishlens-language-change', {
-        detail: selectedLanguage,
-      })
+      new CustomEvent(
+        LANGUAGE_CHANGE_EVENT,
+        {
+          detail: selectedLanguage,
+        }
+      )
     );
   };
 
@@ -95,7 +150,10 @@ export default function Navbar() {
           className="navbar-brand"
           onClick={closeMenu}
         >
-          <div className="brand-logo">
+          <div
+            className="brand-logo"
+            aria-hidden="true"
+          >
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -103,7 +161,6 @@ export default function Navbar() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              aria-hidden="true"
             >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               <circle
@@ -119,12 +176,14 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav links */}
+        {/* Desktop navigation */}
         <div className="navbar-links">
           <Link
             to="/"
             className={`nav-link ${
-              isActive('/') ? 'active' : ''
+              isActive('/')
+                ? 'active'
+                : ''
             }`}
           >
             {t.home}
@@ -139,6 +198,17 @@ export default function Navbar() {
             }`}
           >
             {t.analysis}
+          </Link>
+
+          <Link
+            to="/proactive"
+            className={`nav-link ${
+              isActive('/proactive')
+                ? 'active'
+                : ''
+            }`}
+          >
+            {t.proactive}
           </Link>
 
           <Link
@@ -157,13 +227,21 @@ export default function Navbar() {
         <div className="navbar-actions">
           <div className="navbar-language">
             <span
-              className="language-icon"
+              className="navbar-language-icon"
               aria-hidden="true"
             >
               🌐
             </span>
 
+            <label
+              htmlFor="navbar-language-select"
+              className="sr-only"
+            >
+              {t.languageLabel}
+            </label>
+
             <select
+              id="navbar-language-select"
               className="navbar-language-select"
               value={language}
               onChange={handleLanguageChange}
@@ -199,7 +277,9 @@ export default function Navbar() {
             isMenuOpen ? 'open' : ''
           }`}
           onClick={() =>
-            setIsMenuOpen((prev) => !prev)
+            setIsMenuOpen(
+              (prev) => !prev
+            )
           }
           aria-label={
             isMenuOpen
@@ -215,7 +295,7 @@ export default function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile menu */}
       {isMenuOpen && (
         <div
           id="mobile-menu"
@@ -248,6 +328,18 @@ export default function Navbar() {
           </Link>
 
           <Link
+            to="/proactive"
+            className={`mobile-nav-link ${
+              isActive('/proactive')
+                ? 'active'
+                : ''
+            }`}
+            onClick={closeMenu}
+          >
+            {t.proactive}
+          </Link>
+
+          <Link
             to="/results"
             className={`mobile-nav-link ${
               isActive('/results')
@@ -260,17 +352,23 @@ export default function Navbar() {
           </Link>
 
           <div className="mobile-language">
-            <div className="mobile-language-label">
-              <span aria-hidden="true">
-                🌐
-              </span>
-              <span>
-                {t.languageLabel}
-              </span>
-            </div>
+            <span
+              className="mobile-language-icon"
+              aria-hidden="true"
+            >
+              🌐
+            </span>
+
+            <label
+              htmlFor="mobile-language-select"
+              className="mobile-language-label"
+            >
+              {t.languageLabel}
+            </label>
 
             <select
-              className="navbar-language-select"
+              id="mobile-language-select"
+              className="mobile-language-select"
               value={language}
               onChange={handleLanguageChange}
               aria-label={t.languageLabel}
