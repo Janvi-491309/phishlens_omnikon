@@ -2,7 +2,7 @@ import Tesseract from 'tesseract.js';
 
 const OCR_LANGUAGE_MAP = {
   en: 'eng',
-  hi: 'hin',
+  hi: 'hin+eng',
   te: 'tel',
 };
 
@@ -45,9 +45,20 @@ export const extractTextFromImage = async (
       }
     );
 
-    return result.data.text.trim();
+    const extractedText =
+      result.data.text.trim();
+
+    console.log(
+      'OCR EXTRACTED TEXT:',
+      extractedText
+    );
+
+    return extractedText;
   } catch (error) {
     console.error('OCR Error:', error);
-    throw new Error('Failed to extract text from image.');
+
+    throw new Error(
+      'Failed to extract text from image.'
+    );
   }
 };

@@ -157,9 +157,7 @@ export default function ScreenshotAnalyzer() {
     };
 
     const handleStorageChange = (event) => {
-      if (
-        event.key === 'phishlens-language'
-      ) {
+      if (event.key === 'phishlens-language') {
         setLanguage(getSelectedLanguage());
       }
     };
@@ -223,6 +221,10 @@ export default function ScreenshotAnalyzer() {
 
     let extractedText = '';
 
+    /*
+     * Capture the language once for this analysis.
+     * This same value is used for OCR and backend analysis.
+     */
     const selectedLanguage =
       getSelectedLanguage();
 
@@ -277,6 +279,10 @@ export default function ScreenshotAnalyzer() {
   };
 
   const handleClear = () => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
     setImageFile(null);
     setImagePreview(null);
     setError(null);
@@ -312,6 +318,7 @@ export default function ScreenshotAnalyzer() {
                   e.key === ' ') &&
                 !isLoading
               ) {
+                e.preventDefault();
                 fileInputRef.current?.click();
               }
             }}
