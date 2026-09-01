@@ -13,6 +13,11 @@ def test_detects_telugu_script():
     assert language_detector.detect("మీ ఖాతాను వెంటనే ధృవీకరించండి") == "te"
 
 
+def test_detects_hindi_devanagari_script_without_misclassifying_telugu():
+    assert language_detector.detect("अपने खाते को तुरंत सत्यापित करें") == "hi"
+    assert language_detector.detect("మీ ఖాతాను వెంటనే ధృవీకరించండి") == "te"
+
+
 def test_telugu_with_shared_otp_signal_stays_telugu():
     assert language_detector.detect("మీ ఖాతాను వెంటనే ధృవీకరించండి. OTP పంపండి") == "te"
 
@@ -35,4 +40,4 @@ def test_explicit_override_wins_over_detection():
 
 def test_schema_rejects_invalid_language():
     with pytest.raises(ValidationError):
-        MessageAnalysisRequest(text="hello", language="hi")
+        MessageAnalysisRequest(text="hello", language="fr")

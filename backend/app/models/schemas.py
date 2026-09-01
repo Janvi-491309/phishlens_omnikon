@@ -11,7 +11,7 @@ class MessageAnalysisRequest(BaseModel):
         description="The content of the message (email, SMS, chat, etc.) to analyze for phishing threats.",
         min_length=1
     )
-    language: Optional[Literal["en", "te", "te-Latn", "mixed"]] = Field(
+    language: Optional[Literal["en", "te", "te-Latn", "hi", "mixed"]] = Field(
         default=None,
         description="Optional message language override. When omitted, PhishLens detects it.",
     )
@@ -61,7 +61,7 @@ class AnalysisFinding(BaseModel):
 class MessageAnalysisResponse(BaseModel):
     risk_score: float = Field(..., description="The aggregated risk score (0.0 to 100.0).")
     risk_level: str = Field(..., description="The risk classification ('SAFE', 'SUSPICIOUS', 'HIGH').")
-    language: Literal["en", "te", "te-Latn", "mixed"] = Field(
+    language: Literal["en", "te", "te-Latn", "hi", "mixed"] = Field(
         ..., description="The resolved language used for analysis and output."
     )
     findings: List[str] = Field(default=[], description="List of specific indicators flagged during analysis.")

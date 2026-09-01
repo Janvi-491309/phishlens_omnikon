@@ -35,6 +35,10 @@ class GeminiExplainer:
             if not findings:
                 return "Anumanaaspada sanketalu kanipinchaledu. Sandesam surakshitanga kanipistondi."
             return f"Ee sandesam {risk_level} ga vargikarinchabadindi; risk score {risk_score}/100. Gurthinchina sanketalu: {', '.join(findings)}."
+        if language == "hi":
+            if not findings:
+                return "संदेश में कोई संदिग्ध संकेत नहीं मिला। यह सुरक्षित प्रतीत होता है।"
+            return f"इस संदेश को {risk_level} के रूप में वर्गीकृत किया गया है; जोखिम स्कोर {risk_score}/100 है। पहचाने गए संकेत: {', '.join(findings)}।"
         if language == "mixed":
             if not findings:
                 return "No suspicious indicators were detected. సందేశం సురక్షితంగా కనిపిస్తోంది."
@@ -100,7 +104,7 @@ class GeminiExplainer:
             "assessment data. Do not invent findings, recalculate the score, change the risk "
             "level, or provide dangerous instructions. State the supplied risk level and score "
             "accurately. Explain in the resolved language (Telugu script for te, Romanized Telugu "
-            "for te-Latn, and bilingual/neutral wording for mixed). Return plain text only.\n\n"
+            "for te-Latn, Hindi for hi, and bilingual/neutral wording for mixed). Return plain text only.\n\n"
             f"Assessment data:\n{json.dumps(prompt_data, ensure_ascii=False)}"
         )
 

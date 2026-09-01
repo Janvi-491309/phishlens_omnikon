@@ -31,6 +31,24 @@ def test_romanized_telugu_equivalents_are_scored():
     assert result["risk_score"] == 45.0
 
 
+def test_hindi_phishing_message_is_scored_deterministically():
+    result = message_analyzer.analyze("तुरंत: आपका खाता निलंबित है। ओटीपी भेजें।", "hi")
+    assert result["risk_score"] == 65.0
+    assert result["risk_level"] == "SUSPICIOUS"
+
+
+def test_hindi_safe_message_has_no_phishing_indicators():
+    result = message_analyzer.analyze("कल दोपहर 12 बजे बैठक है।", "hi")
+    assert result["risk_score"] == 0.0
+    assert result["risk_level"] == "SAFE"
+
+
+def test_hindi_otp_credential_request_is_scored():
+    result = message_analyzer.analyze("कृपया अपना ओटीपी और पासवर्ड भेजें।", "hi")
+    assert result["risk_score"] == 25.0
+    assert any("Credential request" in finding for finding in result["findings"])
+
+
 def test_code_mixed_message_uses_existing_rules_without_double_counting():
     result = message_analyzer.analyze("మీ account వెంటనే verify cheyyandi. OTP pampandi", "mixed")
     assert result["risk_score"] == 45.0
@@ -52,7 +70,7 @@ def test_english_safe_action_is_unchanged():
 
 def test_ml_is_gated_for_non_english_languages():
     classifier = MLClassifier()
-    for language in ("te", "te-Latn", "mixed"):
+    for language in ("te", "te-Latn", "hi", "mixed"):
         assert classifier.predict("మీ ఖాతా verify cheyyandi", language) == {
             "prediction": "safe", "probability": 0.0, "model_ready": False
         }
@@ -68,6 +86,19 @@ def test_endpoint_resolves_language_and_does_not_call_ml_for_telugu(monkeypatch)
     )
     assert response.status_code == 200
     assert response.json()["language"] == "te"
+    assert response.json()["risk_score"] == 45.0
+
+
+def test_hindi_api_language_override_and_ml_gating(monkeypatch):
+    def unexpected_model_call(_: str):
+        raise AssertionError("English-only model should not be called")
+
+    monkeypatch.setattr(detection.ml_classifier, "predict", unexpected_model_call)
+    response = TestClient(app).post(
+        "/api/analyze/message", json={"text": "तुरंत अपना ओटीपी भेजें।", "language": "hi"}
+    )
+    assert response.status_code == 200
+    assert response.json()["language"] == "hi"
     assert response.json()["risk_score"] == 45.0
 
 
@@ -90,6 +121,15 @@ def test_gemini_failure_uses_localized_fallback():
     explainer = GeminiExplainer(client=SimpleNamespace(models=SimpleNamespace(generate_content=generate_content)))
     explanation = explainer.explain("message", "OTP పంపండి", ["Credential request"], 25.0, "SAFE", "te")
     assert "ప్రమాద స్కోరు" in explanation
+
+
+def test_hindi_gemini_failure_uses_localized_fallback():
+    def generate_content(**_):
+        raise RuntimeError("unavailable")
+
+    explainer = GeminiExplainer(client=SimpleNamespace(models=SimpleNamespace(generate_content=generate_content)))
+    explanation = explainer.explain("message", "ओटीपी भेजें", ["Credential request"], 25.0, "SAFE", "hi")
+    assert "जोखिम स्कोर" in explanation
 
 
 def test_telugu_literals_are_utf8_and_render_from_python():

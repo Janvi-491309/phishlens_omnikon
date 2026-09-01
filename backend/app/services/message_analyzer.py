@@ -62,6 +62,14 @@ class MessageAnalyzer:
             "bank customer care", "bank officer", "sbi officer", "bank manager",
             "బ్యాంక్ కస్టమర్ కేర్", "బ్యాంక్ అధికారి", "బ్యాంక్ మేనేజర్", "ఎస్‌బీఐ అధికారి",
         ])
+
+        # Small, curated Hindi equivalents. Generic terms such as "बैंक" are
+        # intentionally excluded; impersonation needs a role-specific claim.
+        self.urgency_keywords.extend(["तुरंत", "अभी", "तत्काल"])
+        self.threat_keywords.extend(["खाता निलंबित", "खाता बंद", "खाता ब्लॉक"])
+        self.credential_keywords.extend(["ओटीपी", "पासवर्ड", "पिन"])
+        self.prize_keywords.extend(["इनाम", "पुरस्कार", "लॉटरी", "जीत गए"])
+        self.impersonation_keywords.extend(["बैंक अधिकारी", "एसबीआई अधिकारी", "ग्राहक सेवा अधिकारी"])
         
         # URL Regex matching http/https links, www. links, or common domains
         self.url_pattern = re.compile(
@@ -94,6 +102,12 @@ class MessageAnalyzer:
             if risk_level == "SUSPICIOUS":
                 return "Passwords, OTPs, leda credentials panchukovaddu. Samstha adhikarika website lo verify cheyyandi."
             return "Links open cheyakandi leda passwords, OTPs, credentials panchukovaddu. Adhikarika website lo verify cheyyandi."
+        if language == "hi":
+            if risk_level == "SAFE":
+                return "तत्काल कोई कार्रवाई आवश्यक नहीं है। सामान्य सुरक्षा सावधानियाँ जारी रखें।"
+            if risk_level == "SUSPICIOUS":
+                return "पासवर्ड, OTP या अन्य जानकारी साझा न करें। संस्था की आधिकारिक वेबसाइट से संदेश सत्यापित करें।"
+            return "लिंक न खोलें और पासवर्ड, OTP या अन्य जानकारी साझा न करें। अनुरोध को आधिकारिक वेबसाइट से सत्यापित करें।"
         if language == "mixed":
             if risk_level == "SAFE":
                 return "No immediate action is required. సాధారణ భద్రతా జాగ్రత్తలు కొనసాగించండి."
