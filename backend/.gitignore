@@ -22,3 +22,5 @@ htmlcov/
 
 # ML model binaries (Round 3) - regenerate with: python models/train_classifier.py
 models/*.pkl
+!models/phishing_model.pkl
+!models/tfidf_vectorizer.pkl
