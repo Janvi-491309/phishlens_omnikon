@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { extractTextFromImage } from '../services/ocr';
 import { analyzeMessage } from '../services/api';
@@ -26,8 +26,6 @@ const translations = {
       'Sending extracted text to the intelligence engine…',
     invalidFile:
       'Unsupported file type. Please upload a PNG or JPG image.',
-    selectImage:
-      'Please select a screenshot to analyze',
     ocrFailed:
       'OCR failed to process this image. Try a clearer screenshot with readable text.',
     noText:
@@ -54,8 +52,6 @@ const translations = {
       'निकाला गया टेक्स्ट सुरक्षा इंजन को भेजा जा रहा है…',
     invalidFile:
       'असमर्थित फ़ाइल प्रकार। कृपया PNG या JPG छवि अपलोड करें।',
-    selectImage:
-      'विश्लेषण के लिए कृपया एक स्क्रीनशॉट चुनें',
     ocrFailed:
       'OCR इस छवि को संसाधित नहीं कर सका। स्पष्ट और पढ़ने योग्य स्क्रीनशॉट आज़माएँ।',
     noText:
@@ -82,8 +78,6 @@ const translations = {
       'తీసిన టెక్స్ట్‌ను ఇంటెలిజెన్స్ ఇంజిన్‌కు పంపుతోంది…',
     invalidFile:
       'మద్దతు లేని ఫైల్ రకం. దయచేసి PNG లేదా JPG చిత్రాన్ని అప్‌లోడ్ చేయండి.',
-    selectImage:
-      'విశ్లేషించడానికి దయచేసి ఒక స్క్రీన్‌షాట్‌ను ఎంచుకోండి',
     ocrFailed:
       'OCR ఈ చిత్రాన్ని ప్రాసెస్ చేయలేకపోయింది. మరింత స్పష్టమైన స్క్రీన్‌షాట్‌ను ప్రయత్నించండి.',
     noText:
@@ -99,7 +93,10 @@ const translations = {
 };
 
 function getSelectedLanguage() {
-  const storedLanguage = localStorage.getItem('phishlens-language');
+  const storedLanguage = localStorage.getItem(
+    'phishlens-language'
+  );
+
   const validLanguages = ['en', 'hi', 'te'];
 
   return validLanguages.includes(storedLanguage)
@@ -111,13 +108,14 @@ function getSelectedLanguage() {
  * Classify an axios error into a user-friendly message.
  */
 function getApiErrorMessage(err, language) {
-  const t = translations[language] || translations.en;
+  const t =
+    translations[language] || translations.en;
 
-  if (err.code === 'ECONNABORTED') {
+  if (err?.code === 'ECONNABORTED') {
     return t.timeout;
   }
 
-  if (!err.response) {
+  if (!err?.response) {
     return t.unreachable;
   }
 
@@ -137,12 +135,60 @@ export default function ScreenshotAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const [language, setLanguage] = useState(
+    getSelectedLanguage()
+  );
 
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const language = getSelectedLanguage();
-  const t = translations[language] || translations.en;
+  useEffect(() => {
+    const handleLanguageChange = (event) => {
+      const nextLanguage =
+        event?.detail || getSelectedLanguage();
+
+      const validLanguages = ['en', 'hi', 'te'];
+
+      setLanguage(
+        validLanguages.includes(nextLanguage)
+          ? nextLanguage
+          : 'en'
+      );
+    };
+
+    const handleStorageChange = (event) => {
+      if (
+        event.key === 'phishlens-language'
+      ) {
+        setLanguage(getSelectedLanguage());
+      }
+    };
+
+    window.addEventListener(
+      'phishlens-language-change',
+      handleLanguageChange
+    );
+
+    window.addEventListener(
+      'storage',
+      handleStorageChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        'phishlens-language-change',
+        handleLanguageChange
+      );
+
+      window.removeEventListener(
+        'storage',
+        handleStorageChange
+      );
+    };
+  }, []);
+
+  const t =
+    translations[language] || translations.en;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -177,11 +223,15 @@ export default function ScreenshotAnalyzer() {
 
     let extractedText = '';
 
+    const selectedLanguage =
+      getSelectedLanguage();
+
     try {
       extractedText =
         await extractTextFromImage(
           imageFile,
-          setProgress
+          setProgress,
+          selectedLanguage
         );
     } catch (err) {
       console.error(err);
@@ -204,9 +254,6 @@ export default function ScreenshotAnalyzer() {
     setIsAnalyzing(true);
 
     try {
-      const selectedLanguage =
-        getSelectedLanguage();
-
       const result = await analyzeMessage(
         extractedText.trim(),
         selectedLanguage
@@ -217,9 +264,6 @@ export default function ScreenshotAnalyzer() {
       });
     } catch (err) {
       console.error(err);
-
-      const selectedLanguage =
-        getSelectedLanguage();
 
       setError(
         getApiErrorMessage(
@@ -309,7 +353,9 @@ export default function ScreenshotAnalyzer() {
                   r="1.5"
                 ></circle>
 
-                <polyline points="21 15 16 10 5 21"></polyline>
+                <polyline
+                  points="21 15 16 10 5 21"
+                ></polyline>
               </svg>
             </div>
 
@@ -386,7 +432,7 @@ export default function ScreenshotAnalyzer() {
                 style={{
                   width: `${progress}%`,
                 }}
-              />
+              ></div>
             </div>
 
             <p className="progress-text">
