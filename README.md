@@ -1,10 +1,4 @@
-Yes. Your current README is outdated because it describes **only the frontend**, says backend integration is for "future," and doesn't include the **Round 3 ML classifier, regional languages, proactive check, backend APIs, testing, or deployment**.
 
-Below is a replacement README that matches the current state of PhishLens and keeps the language simple and natural.
-
-You can **replace the entire contents of your current `README.md` with this**.
-
-````markdown
 # 🛡️ PhishLens
 
 ### AI-powered phishing detection for messages, URLs, and screenshots
